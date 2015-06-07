@@ -9,11 +9,9 @@ namespace Funcy
     public abstract class DisposableMaybe<T> : IMaybe<T>, IDisposable where T : IDisposable
     {
         public abstract bool IsSome { get; }
-        bool IMaybe<T>.IsSome
-        {
-            get { return this.IsSome; }
-        }
-        bool IMaybe<T>.IsNone { get { return !this.IsSome; } }
+        bool IMaybe<T>.IsSome { get { return this.IsSome; } }
+        public bool IsNone { get { return !this.IsSome; } }
+        bool IMaybe<T>.IsNone { get { return this.IsNone; } }
 
         public static DisposableSome<T> Some(T value)
         {
@@ -57,10 +55,7 @@ namespace Funcy
 
         public override bool IsSome
         {
-            get
-            {
-                return true;
-            }
+            get { return true; }
         }
 
         public override void Dispose()
@@ -81,10 +76,7 @@ namespace Funcy
 
         public override bool IsSome
         {
-            get
-            {
-                return false;
-            }
+            get { return false; }
         }
 
         public override void Dispose()

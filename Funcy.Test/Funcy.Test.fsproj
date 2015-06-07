@@ -52,10 +52,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MaybeTest.fs" />
-    <None Include="Script.fsx" />
     <None Include="packages.config" />
     <None Include="app.config" />
+    <Compile Include="MyDisposable.fs" />
     <Compile Include="DisposableMaybeTest.fs" />
+    <Compile Include="EitherTest.fs" />
+    <Compile Include="DisposableEitherTest.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Funcy\Funcy.csproj">

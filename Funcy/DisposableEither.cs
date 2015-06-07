@@ -8,9 +8,10 @@ namespace Funcy
 {
     public abstract class DisposableEither1<TLeft, TRight> : IEither<TLeft, TRight>, IDisposable where TLeft : IDisposable
     {
-        public abstract bool IsLeft { get; }
+        public abstract bool IsRight { get; }
+        bool IEither<TLeft, TRight>.IsRight { get { return this.IsRight; } }
+        public bool IsLeft { get { return !this.IsRight; } }
         bool IEither<TLeft, TRight>.IsLeft { get { return this.IsLeft; } }
-        bool IEither<TLeft, TRight>.IsRight { get { return !this.IsLeft; } }
 
         public abstract void Dispose();
         void IDisposable.Dispose()
@@ -28,12 +29,12 @@ namespace Funcy
             return (IRight<TLeft, TRight>)this;
         }
 
-        public static DisposableEither1<TLeft, TRight> Left(TLeft left)
+        public static DisposableLeft1<TLeft, TRight> Left(TLeft left)
         {
             return new DisposableLeft1<TLeft, TRight>(left);
         }
 
-        public static DisposableEither1<TLeft, TRight> Right(TRight right)
+        public static DisposableRight1<TLeft, TRight> Right(TRight right)
         {
             return new DisposableRight1<TLeft, TRight>(right);
         }
@@ -52,11 +53,11 @@ namespace Funcy
             this.value = left;
         }
 
-        public override bool IsLeft
+        public override bool IsRight
         {
             get
             {
-                return true;
+                return false;
             }
         }
 
@@ -83,11 +84,11 @@ namespace Funcy
             this.value = right;
         }
 
-        public override bool IsLeft
+        public override bool IsRight
         {
             get
             {
-                return false;
+                return true;
             }
         }
 
@@ -99,10 +100,11 @@ namespace Funcy
 
     public abstract class DisposableEither2<TLeft, TRight> : IEither<TLeft, TRight>, IDisposable where TRight : IDisposable
     {
-        public abstract bool IsLeft { get; }
+        public abstract bool IsRight { get; }
+        bool IEither<TLeft, TRight>.IsRight { get { return this.IsRight; } }
+        public bool IsLeft { get { return !this.IsRight; } }
         bool IEither<TLeft, TRight>.IsLeft { get { return this.IsLeft; } }
-        bool IEither<TLeft, TRight>.IsRight { get { return !this.IsLeft; } }
-
+        
         public abstract void Dispose();
         void IDisposable.Dispose()
         {
@@ -119,12 +121,12 @@ namespace Funcy
             return (IRight<TLeft, TRight>)this;
         }
 
-        public static DisposableEither2<TLeft, TRight> Left(TLeft left)
+        public static DisposableLeft2<TLeft, TRight> Left(TLeft left)
         {
             return new DisposableLeft2<TLeft, TRight>(left);
         }
 
-        public static DisposableEither2<TLeft, TRight> Right(TRight right)
+        public static DisposableRight2<TLeft, TRight> Right(TRight right)
         {
             return new DisposableRight2<TLeft, TRight>(right);
         }
@@ -143,11 +145,11 @@ namespace Funcy
             this.value = left;
         }
 
-        public override bool IsLeft
+        public override bool IsRight
         {
             get
             {
-                return true;
+                return false;
             }
         }
 
@@ -169,11 +171,11 @@ namespace Funcy
             this.value = right;
         }
 
-        public override bool IsLeft
+        public override bool IsRight
         {
             get
             {
-                return false;
+                return true;
             }
         }
 
@@ -187,15 +189,15 @@ namespace Funcy
         }
     }
 
-
     public abstract class DisposableEither3<TLeft, TRight> : IEither<TLeft, TRight>, IDisposable
         where TLeft : IDisposable
         where TRight : IDisposable
     {
-        public abstract bool IsLeft { get; }
+        public abstract bool IsRight { get; }
+        bool IEither<TLeft, TRight>.IsRight { get { return this.IsRight; } }
+        public bool IsLeft { get { return !this.IsRight; } }
         bool IEither<TLeft, TRight>.IsLeft { get { return this.IsLeft; } }
-        bool IEither<TLeft, TRight>.IsRight { get { return !this.IsLeft; } }
-
+ 
         public abstract void Dispose();
         void IDisposable.Dispose()
         {
@@ -212,12 +214,12 @@ namespace Funcy
             return (IRight<TLeft, TRight>)this;
         }
 
-        public static DisposableEither3<TLeft, TRight> Left(TLeft left)
+        public static DisposableLeft3<TLeft, TRight> Left(TLeft left)
         {
             return new DisposableLeft3<TLeft, TRight>(left);
         }
 
-        public static DisposableEither3<TLeft, TRight> Right(TRight right)
+        public static DisposableRight3<TLeft, TRight> Right(TRight right)
         {
             return new DisposableRight3<TLeft, TRight>(right);
         }
@@ -238,11 +240,11 @@ namespace Funcy
             this.value = left;
         }
 
-        public override bool IsLeft
+        public override bool IsRight
         {
             get
             {
-                return true;
+                return false;
             }
         }
 
@@ -271,11 +273,11 @@ namespace Funcy
             this.value = right;
         }
 
-        public override bool IsLeft
+        public override bool IsRight
         {
             get
             {
-                return false;
+                return true;
             }
         }
 
