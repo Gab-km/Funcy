@@ -8,21 +8,21 @@ namespace Funcy
 {
     public abstract class Either<TLeft, TRight> : IEither<TLeft, TRight>
     {
-        public static Either<TLeft, TRight> Left(TLeft left)
+        public static Left<TLeft, TRight> Left(TLeft left)
         {
             return new Left<TLeft, TRight>(left);
         }
 
-        public static Either<TLeft, TRight> Right(TRight right)
+        public static Right<TLeft, TRight> Right(TRight right)
         {
             return new Right<TLeft, TRight>(right);
         }
 
-        public abstract bool IsLeft { get; }
-        bool IEither<TLeft, TRight>.IsLeft { get { return this.IsLeft; } }
-
-        public bool IsRight { get { return !this.IsLeft; } }
+        public abstract bool IsRight { get; }
         bool IEither<TLeft, TRight>.IsRight { get { return this.IsRight; } }
+
+        public bool IsLeft { get { return !this.IsRight; } }
+        bool IEither<TLeft, TRight>.IsLeft { get { return this.IsLeft; } }
 
         ILeft<TLeft, TRight> IEither<TLeft, TRight>.ToLeft()
         {
@@ -48,11 +48,11 @@ namespace Funcy
             this.value = left;
         }
 
-        public override bool IsLeft
+        public override bool IsRight
         {
             get
             {
-                return true;
+                return false;
             }
         }
     }
@@ -70,11 +70,11 @@ namespace Funcy
             this.value = right;
         }
 
-        public override bool IsLeft
+        public override bool IsRight
         {
             get
             {
-                return false;
+                return true;
             }
         }
     }
