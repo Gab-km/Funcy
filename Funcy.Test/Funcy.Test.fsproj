@@ -51,13 +51,12 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MaybeTest.fs" />
     <None Include="packages.config" />
     <None Include="app.config" />
-    <Compile Include="MyDisposable.fs" />
-    <Compile Include="DisposableMaybeTest.fs" />
+    <Compile Include="MaybeTest.fs" />
     <Compile Include="EitherTest.fs" />
-    <Compile Include="DisposableEitherTest.fs" />
+    <Compile Include="MaybeComputationTest.fs" />
+    <Compile Include="EitherComputationTest.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Funcy\Funcy.csproj">
