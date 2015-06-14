@@ -26,7 +26,7 @@ namespace Hello
             }
             else
             {
-                Console.WriteLine("Fmm... Is there any troubles?");
+                Console.WriteLine("Fmm... Are there any troubles?");
             }
         }
     }
