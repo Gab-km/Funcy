@@ -39,9 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DisposableEither.cs" />
-    <Compile Include="DisposableMaybe.cs" />
     <Compile Include="Either.cs" />
+    <Compile Include="IComputable.cs" />
     <Compile Include="IEither.cs" />
     <Compile Include="IMaybe.cs" />
     <Compile Include="Maybe.cs" />

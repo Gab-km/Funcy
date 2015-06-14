@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Funcy.Computations;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,11 +9,6 @@ namespace Funcy
 {
     public abstract class Maybe<T> : IMaybe<T>
     {
-        public abstract bool IsSome { get; }
-        bool IMaybe<T>.IsSome { get { return this.IsSome; } }
-        public bool IsNone { get { return !this.IsSome; } }
-        bool IMaybe<T>.IsNone { get { return this.IsNone; } }
-
         public static Some<T> Some(T value)
         {
             return new Some<T>(value);
@@ -23,15 +19,25 @@ namespace Funcy
             return new None<T>();
         }
 
-        ISome<T> IMaybe<T>.ToSome()
-        {
-            return (ISome<T>)this;
-        }
+        public abstract ISome<T> ToSome();
 
-        INone<T> IMaybe<T>.ToNone()
+        public abstract INone<T> ToNone();
+
+        public abstract bool IsSome { get; }
+
+        public abstract bool IsNone { get; }
+
+        IComputable<TReturn> IComputable<T>.Compute<TReturn>(Func<T, TReturn> f)
         {
-            return (INone<T>)this;
+            return this.Compute(f);
         }
+        public abstract IMaybe<TReturn> Compute<TReturn>(Func<T, TReturn> f);
+
+        IComputable<TReturn> IComputable<T>.ComputeWith<TReturn>(Func<T, IComputable<TReturn>> f)
+        {
+            return this.ComputeWith(f);
+        }
+        public abstract IMaybe<TReturn> ComputeWith<TReturn>(Func<T, IComputable<TReturn>> f);
     }
 
     public class Some<T> : Maybe<T>, ISome<T>
@@ -47,9 +53,28 @@ namespace Funcy
             this.value = value;
         }
 
-        public override bool IsSome
+        public override bool IsSome { get { return true; } }
+
+        public override bool IsNone { get { return !this.IsSome; } }
+
+        public override ISome<T> ToSome()
         {
-            get { return true; }
+            return this;
+        }
+
+        public override INone<T> ToNone()
+        {
+            return (INone<T>)this;
+        }
+
+        public override IMaybe<TReturn> Compute<TReturn>(Func<T, TReturn> f)
+        {
+            return Maybe<TReturn>.Some(f(this.value));
+        }
+
+        public override IMaybe<TReturn> ComputeWith<TReturn>(Func<T, IComputable<TReturn>> f)
+        {
+            return (IMaybe<TReturn>)f(this.value);
         }
     }
 
@@ -59,9 +84,28 @@ namespace Funcy
         {
         }
 
-        public override bool IsSome
+        public override bool IsSome { get { return false; } }
+
+        public override bool IsNone { get { return !this.IsSome; } }
+
+        public override ISome<T> ToSome()
         {
-            get { return false; }
+            return (ISome<T>)this;
+        }
+
+        public override INone<T> ToNone()
+        {
+            return this;
+        }
+
+        public override IMaybe<TReturn> Compute<TReturn>(Func<T, TReturn> f)
+        {
+            return Maybe<TReturn>.None();
+        }
+
+        public override IMaybe<TReturn> ComputeWith<TReturn>(Func<T, IComputable<TReturn>> f)
+        {
+            return Maybe<TReturn>.None();
         }
     }
 }

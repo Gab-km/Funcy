@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Funcy.Computations;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,21 +19,25 @@ namespace Funcy
             return new Right<TLeft, TRight>(right);
         }
 
+        public abstract ILeft<TLeft, TRight> ToLeft();
+
+        public abstract IRight<TLeft, TRight> ToRight();
+
         public abstract bool IsRight { get; }
-        bool IEither<TLeft, TRight>.IsRight { get { return this.IsRight; } }
 
-        public bool IsLeft { get { return !this.IsRight; } }
-        bool IEither<TLeft, TRight>.IsLeft { get { return this.IsLeft; } }
+        public abstract bool IsLeft { get; }
 
-        ILeft<TLeft, TRight> IEither<TLeft, TRight>.ToLeft()
+        IComputable<TReturn> IComputable<TRight>.Compute<TReturn>(Func<TRight, TReturn> f)
         {
-            return (ILeft<TLeft, TRight>)this;
+            return this.Compute(f);
         }
+        public abstract IEither<TLeft, TReturn> Compute<TReturn>(Func<TRight, TReturn> f);
 
-        IRight<TLeft, TRight> IEither<TLeft, TRight>.ToRight()
+        IComputable<TReturn> IComputable<TRight>.ComputeWith<TReturn>(Func<TRight, IComputable<TReturn>> f)
         {
-            return (IRight<TLeft, TRight>)this;
+            return this.ComputeWith(f);
         }
+        public abstract IEither<TLeft, TReturn> ComputeWith<TReturn>(Func<TRight, IComputable<TReturn>> f);
     }
 
     public class Left<TLeft, TRight> : Either<TLeft, TRight>, ILeft<TLeft, TRight>
@@ -48,12 +53,28 @@ namespace Funcy
             this.value = left;
         }
 
-        public override bool IsRight
+        public override bool IsRight { get { return false; } }
+
+        public override bool IsLeft { get { return !this.IsRight; } }
+
+        public override ILeft<TLeft, TRight> ToLeft()
         {
-            get
-            {
-                return false;
-            }
+            return this;
+        }
+
+        public override IRight<TLeft, TRight> ToRight()
+        {
+            return (IRight<TLeft, TRight>)this;
+        }
+        
+        public override IEither<TLeft, TReturn> Compute<TReturn>(Func<TRight, TReturn> f)
+        {
+            return Either<TLeft, TReturn>.Left(this.value);
+        }
+
+        public override IEither<TLeft, TReturn> ComputeWith<TReturn>(Func<TRight, IComputable<TReturn>> f)
+        {
+            return Either<TLeft, TReturn>.Left(this.value);
         }
     }
 
@@ -70,12 +91,27 @@ namespace Funcy
             this.value = right;
         }
 
-        public override bool IsRight
+        public override bool IsRight { get { return true; } }
+        public override bool IsLeft { get { return !this.IsRight; } }
+
+        public override IRight<TLeft, TRight> ToRight()
         {
-            get
-            {
-                return true;
-            }
+            return this;
+        }
+
+        public override ILeft<TLeft, TRight> ToLeft()
+        {
+            return (ILeft<TLeft, TRight>)this;
+        }
+
+        public override IEither<TLeft, TReturn> Compute<TReturn>(Func<TRight, TReturn> f)
+        {
+            return Either<TLeft, TReturn>.Right(f(this.value));
+        }
+
+        public override IEither<TLeft, TReturn> ComputeWith<TReturn>(Func<TRight, IComputable<TReturn>> f)
+        {
+            return (IEither<TLeft, TReturn>)f(this.value);
         }
     }
 }
