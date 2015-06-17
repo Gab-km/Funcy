@@ -43,6 +43,7 @@
     <Compile Include="IComputable.cs" />
     <Compile Include="IEither.cs" />
     <Compile Include="IMaybe.cs" />
+    <Compile Include="Matcher.cs" />
     <Compile Include="Maybe.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
