@@ -3,46 +3,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Funcy;
 
-namespace Funcy
+namespace Funcy.Patterns
 {
-    public static class Matcher
+    public class Matcher
     {
-        public static Matcher<T> Match<T>(T target) where T : IEquatable<T>
+        public static Matcher Match(object target)
         {
-            return new Matcher<T>(target, false);
-        }
-    }
-
-    public class Matcher<T> where T : IEquatable<T>
-    {
-        private T target;
-        private bool matched;
-
-        public Matcher(T target, bool matched)
-        {
-            this.target = target;
-            this.matched = matched;
+            return new Matcher(target);
         }
 
-        public Matcher<T> Case(T expected, Action action)
+        public object Target { get; private set; }
+
+        private Matcher(object target)
         {
-            if (!this.matched && this.target.Equals(expected))
-            {
-                action.Invoke();
-                return new Matcher<T>(target, true);
-            }
-            else
-            {
-                return this;
-            }
+            this.Target = target;
         }
 
-        public void Else(Action action)
+        public void With<T>(Pattern<T> pattern, params Pattern<T>[] patterns)
         {
-            if (!this.matched)
+            var maybeMatched = pattern.Matching(this);
+            if (maybeMatched.IsSome)
             {
-                action.Invoke();
+                if (patterns.Length > 0)
+                {
+                    this.With(patterns[0], patterns.Skip(1).ToArray());
+                }
             }
         }
     }
