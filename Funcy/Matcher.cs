@@ -23,14 +23,29 @@ namespace Funcy.Patterns
 
         public void With<T>(Pattern<T> pattern, params Pattern<T>[] patterns)
         {
-            var maybeMatched = pattern.Matching(this);
-            if (maybeMatched.IsSome)
+            var matched = pattern.Matching(this);
+            if (matched.IsLeft)
             {
                 if (patterns.Length > 0)
                 {
                     this.With(patterns[0], patterns.Skip(1).ToArray());
                 }
+                else
+                {
+                    throw matched.ToLeft().Value;
+                }
             }
         }
+    }
+
+    [Serializable]
+    public class MatchFailureException : Exception
+    {
+      public MatchFailureException() { }
+      public MatchFailureException( string message ) : base( message ) { }
+      public MatchFailureException( string message, Exception inner ) : base( message, inner ) { }
+      protected MatchFailureException( 
+	    System.Runtime.Serialization.SerializationInfo info, 
+	    System.Runtime.Serialization.StreamingContext context ) : base( info, context ) { }
     }
 }

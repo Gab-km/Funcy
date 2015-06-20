@@ -17,16 +17,16 @@ namespace Funcy.Patterns
             this.action = action;
         }
 
-        public IMaybe<Matcher> Matching(Matcher matcher)
+        public IEither<MatchFailureException, Matcher> Matching(Matcher matcher)
         {
             if (this._case.Test(matcher))
             {
                 this.action.Invoke();
-                return Maybe<Matcher>.None();
+                return Either<MatchFailureException, Matcher>.Right(matcher);
             }
             else
             {
-                return Maybe<Matcher>.Some(matcher);
+                return Either<MatchFailureException, Matcher>.Left(new MatchFailureException());
             }
         }
     }

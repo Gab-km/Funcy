@@ -44,3 +44,12 @@ module MatcherTest =
         do! assertPred <| not !isCase
         do! assertPred !isElse
     }
+
+    let t4 = test "Matcher should throw MatchFailureException when any patterns are matched" {
+        let target = 3.14159265358979m
+        let isMatched = ref false
+        let! e = trap { Matcher.Match(target).With(
+                                Case.Of(3.141592653589m).Then(fun () -> isMatched := true)) |> ignore }
+        do! assertEquals typeof<Funcy.Patterns.MatchFailureException> <| e.GetType()
+        do! assertPred <| not !isMatched
+    }
