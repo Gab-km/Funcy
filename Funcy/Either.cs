@@ -40,7 +40,7 @@ namespace Funcy
         public abstract IEither<TLeft, TReturn> ComputeWith<TReturn>(Func<TRight, IComputable<TReturn>> f);
     }
 
-    public class Left<TLeft, TRight> : Either<TLeft, TRight>, ILeft<TLeft, TRight>
+    public class Left<TLeft, TRight> : Either<TLeft, TRight>, ILeft<TLeft, TRight>, IExtractor<TLeft>
     {
         private TLeft value;
         TLeft ILeft<TLeft, TRight>.Value
@@ -76,9 +76,14 @@ namespace Funcy
         {
             return Either<TLeft, TReturn>.Left(this.value);
         }
+
+        public TLeft Extract()
+        {
+            return this.value;
+        }
     }
 
-    public class Right<TLeft, TRight> : Either<TLeft, TRight>, IRight<TLeft, TRight>
+    public class Right<TLeft, TRight> : Either<TLeft, TRight>, IRight<TLeft, TRight>, IExtractor<TRight>
     {
         private TRight value;
         TRight IRight<TLeft, TRight>.Value
@@ -112,6 +117,11 @@ namespace Funcy
         public override IEither<TLeft, TReturn> ComputeWith<TReturn>(Func<TRight, IComputable<TReturn>> f)
         {
             return (IEither<TLeft, TReturn>)f(this.value);
+        }
+
+        public TRight Extract()
+        {
+            return this.value;
         }
     }
 }

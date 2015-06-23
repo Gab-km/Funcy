@@ -21,7 +21,7 @@ namespace Funcy.Patterns
             this.Target = target;
         }
 
-        public void With<T>(Pattern<T> pattern, params Pattern<T>[] patterns)
+        public void With(IPattern pattern, params IPattern[] patterns)
         {
             var matched = pattern.Matching(this);
             if (matched.IsLeft)
