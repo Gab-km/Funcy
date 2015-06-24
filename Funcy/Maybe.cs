@@ -1,4 +1,5 @@
 ﻿using Funcy.Computations;
+using Funcy.Patterns;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +41,7 @@ namespace Funcy
         public abstract IMaybe<TReturn> ComputeWith<TReturn>(Func<T, IComputable<TReturn>> f);
     }
 
-    public class Some<T> : Maybe<T>, ISome<T>
+    public class Some<T> : Maybe<T>, ISome<T>, IExtractor<T>
     {
         private T value;
         T ISome<T>.Value
@@ -75,6 +76,11 @@ namespace Funcy
         public override IMaybe<TReturn> ComputeWith<TReturn>(Func<T, IComputable<TReturn>> f)
         {
             return (IMaybe<TReturn>)f(this.value);
+        }
+
+        public T Extract()
+        {
+            return this.value;
         }
     }
 
