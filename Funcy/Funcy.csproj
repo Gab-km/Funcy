@@ -39,15 +39,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Case.cs" />
+    <Compile Include="Patterns\Case.cs" />
     <Compile Include="Either.cs" />
-    <Compile Include="IComputable.cs" />
+    <Compile Include="Computations\IComputable.cs" />
     <Compile Include="IEither.cs" />
-    <Compile Include="IExtractor.cs" />
+    <Compile Include="Patterns\IExtractor.cs" />
     <Compile Include="IMaybe.cs" />
-    <Compile Include="Matcher.cs" />
+    <Compile Include="Patterns\Matcher.cs" />
     <Compile Include="Maybe.cs" />
-    <Compile Include="Pattern.cs" />
+    <Compile Include="Patterns\Pattern.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,4 +1,5 @@
 ﻿using Funcy.Computations;
+using Funcy.Patterns;
 using System;
 using System.Collections.Generic;
 using System.Linq;

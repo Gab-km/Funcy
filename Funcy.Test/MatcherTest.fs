@@ -1,9 +1,9 @@
 ﻿namespace Funcy.Test
 
 open Funcy
-open Persimmon
 
 module MatcherTest =
+    open Persimmon
     open Funcy.Patterns
 
     let t1 = test "Matcher should perform the value pattern matching 1" {
