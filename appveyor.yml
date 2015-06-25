@@ -1,0 +1,15 @@
+version: 0.1.{build}
+
+environment:
+  EnableNugetPackageRestore: true
+
+branches:
+  except:
+    - gh-pages
+
+before_test:
+  - ps: cd .\Funcy.Test
+
+test_script:
+  - ps: .\test.ps1
+
