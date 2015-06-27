@@ -49,3 +49,13 @@ Module Module1
 
 End Module
 ```
+
+# Contribution
+
+Pull Requests are very welcome! You can also open issues freely. The one and only important point is Funcy's tests, which are written in F# and use [Persimmon](https://github.com/persimmon-projects/Persimmon). Try it and familiarize yourself with it!
+
+[![Build status](https://ci.appveyor.com/api/projects/status/6rxw9lmpqbuws9gi/branch/master?svg=true)](https://ci.appveyor.com/project/Gabkm/funcy/branch/master)
+
+# License
+
+The MIT License - see [LICENSE](https://github.com/Gab-km/Funcy/blob/master/LICENSE.txt)

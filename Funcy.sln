@@ -9,7 +9,9 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Funcy.Test", "Funcy.Test\Fu
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{879FE1BF-3A68-4236-8692-B0CD22D47D94}"
 	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
 Global
