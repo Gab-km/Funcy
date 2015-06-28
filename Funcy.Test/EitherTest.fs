@@ -4,73 +4,74 @@ namespace Funcy.Test
 open System
 open Funcy
 open Persimmon
+open UseTestNameByReflection
 
 module EitherTest =
 
-    let t1 = test "Either<TLeft, TRight>.Right creates Right<TLeft, TRight> instance" {
+    let ``Either<TLeft, TRight>.Right creates Right<TLeft, TRight> instance`` = test {
         let right = Either<exn, int>.Right(1)
         do! assertEquals typeof<Right<exn, int>> <| right.GetType()
     }
-    let t2 = test "Either<TLeft, TRight>.Left creates Left<TLeft, TRight> instance" {
+    let ``Either<TLeft, TRight>.Left creates Left<TLeft, TRight> instance`` = test {
         let left = Either<exn, string>.Left(Exception("hoge"))
         do! assertEquals typeof<Left<exn, string>> <| left.GetType()
     }
-    let t3 = test "Right<TLeft, TRight> as IRight<TLeft, TRight> then Value should return its right value" {
+    let ``Right<TLeft, TRight> as IRight<TLeft, TRight> then Value should return its right value`` = test {
         let right = Either<exn, float>.Right(2.5) :> IRight<exn, float>
         do! assertEquals 2.5 right.Value
     }
-    let t4 = test "Right<TLeft, TRight>.IsRight should return true" {
+    let ``Right<TLeft, TRight>.IsRight should return true`` = test {
         let right = Either<exn, string>.Right("hoge")
         do! assertPred right.IsRight
     }
-    let t5 = test "Right<TLeft, TRight>.IsLeft should return false" {
+    let ``Right<TLeft, TRight>.IsLeft should return false`` = test {
         let right = Either<exn, string>.Right("hoge")
         do! assertPred <| not right.IsLeft
     }
-    let t6 = test "When Right<TLeft, TRight> as IEither<TLeft, TRight> then IsRight should return true" {
+    let ``When Right<TLeft, TRight> as IEither<TLeft, TRight> then IsRight should return true`` = test {
         let right = Either<exn, float32>.Right(-1.0f) :> IEither<exn, float32>
         do! assertPred right.IsRight
     }
-    let t7 = test "When Right<TLeft, TRight> as IEither<TLeft, TRight> then IsLeft should return false" {
+    let ``When Right<TLeft, TRight> as IEither<TLeft, TRight> then IsLeft should return false`` = test {
         let right = Either<exn, obj>.Right(obj()) :> IEither<exn, obj>
         do! assertPred <| not right.IsLeft
     }
-    let t8 = test "When Right<TLeft, TRight> as IEither<TLeft, TRight> then ToRight should return IRight<TLeft, TRight> instance" {
+    let ``When Right<TLeft, TRight> as IEither<TLeft, TRight> then ToRight should return IRight<TLeft, TRight> instance`` = test {
         let right = Either<exn, int>.Right(-1) :> IEither<exn, int>
         do! assertPred (right.ToRight() :? IRight<exn, int>)
     }
-    let t9 = test "When Right<TLeft, TRight> as IEither<TLeft, TRight> then ToLeft should raise InvalidCastException" {
+    let ``When Right<TLeft, TRight> as IEither<TLeft, TRight> then ToLeft should raise InvalidCastException`` = test {
         let right = Either<exn, string>.Right("egg") :> IEither<exn, string>
         let! e = trap { right.ToLeft() |> ignore }
         do! assertEquals typeof<System.InvalidCastException> <| e.GetType()
     }
-    let t10 = test "Left<TLeft, TRight> as ILeft<TLeft, TRight> then Value should return its left value" {
+    let ``Left<TLeft, TRight> as ILeft<TLeft, TRight> then Value should return its left value`` = test {
         let err = Exception("Left")
         let left = Either<exn, float>.Left(err) :> ILeft<exn, float>
         do! assertEquals err left.Value
     }
-    let t11 = test "Left<TLeft, TRight>.IsRight should return false" {
+    let ``Left<TLeft, TRight>.IsRight should return false`` = test {
         let left = Either<exn, int>.Left(Exception("fuga"))
         do! assertPred <| not left.IsRight
     }
-    let t12 = test "Left<TLeft, TRight>.IsLeft should return true" {
+    let ``Left<TLeft, TRight>.IsLeft should return true`` = test {
         let left = Either<exn, int>.Left(Exception("fuga"))
         do! assertPred left.IsLeft
     }
-    let t13 = test "When Left<TLeft, TRight> as IEither<TLeft, TRight> Then IsRight should return false" {
+    let ``When Left<TLeft, TRight> as IEither<TLeft, TRight> Then IsRight should return false`` = test {
         let left = Either<exn, int>.Left(Exception("fuga")) :> IEither<exn, int>
         do! assertPred <| not left.IsRight
     }
-    let t14 = test "When Left<TLeft, TRight> as IEither<TLeft, TRight> Then IsLeft should return true" {
+    let ``When Left<TLeft, TRight> as IEither<TLeft, TRight> Then IsLeft should return true`` = test {
         let left = Either<exn, int>.Left(Exception("fuga")) :> IEither<exn, int>
         do! assertPred left.IsLeft
     }
-    let t15 = test "When Left<TLeft, TRight> as IEither<TLeft, TRight> then ToRight should raise InvalidCastException" {
+    let ``When Left<TLeft, TRight> as IEither<TLeft, TRight> then ToRight should raise InvalidCastException`` = test {
         let left = Either<exn, int list>.Left(Exception("Not List")) :> IEither<exn, int list>
         let! e = trap { left.ToRight() |> ignore }
         do! assertEquals typeof<System.InvalidCastException> <| e.GetType()
     }
-    let t16 = test "When Left<TLeft, TRight> as IEither<TLeft, TRight> then ToLeft should return ILeft<TLeft, TRight> instance" {
+    let ``When Left<TLeft, TRight> as IEither<TLeft, TRight> then ToLeft should return ILeft<TLeft, TRight> instance`` = test {
         let left = Either<exn, bool>.Left(Exception("ToLeft")) :> IEither<exn, bool>
         do! assertPred (left.ToLeft() :? ILeft<exn, bool>)
     }

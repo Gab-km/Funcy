@@ -4,9 +4,10 @@ open System
 open Funcy
 open Funcy.Computations
 open Persimmon
+open UseTestNameByReflection
 
 module EitherComputationTest =
-    let t1 = test "Right + Right should return Right value" {
+    let ``Right + Right should return Right value`` = test {
         let eitherX = Either<exn, int>.Right(1)
         let eitherY = Either<exn, int>.Right(2)
         let sut = eitherX.ComputeWith(fun x ->
@@ -16,7 +17,7 @@ module EitherComputationTest =
         do! assertEquals 3 <| sut.ToRight().Value
     }
 
-    let t2 = test "Right + Left should return Left value" {
+    let ``Right + Left should return Left value`` = test {
         let eitherX = Either<exn, int>.Right(3)
         let eitherY = Either<exn, int>.Left(Exception("fuga"))
         let sut = eitherX.ComputeWith (fun x ->
@@ -26,7 +27,7 @@ module EitherComputationTest =
         do! assertPred <| sut.ToLeft().IsLeft
     }
 
-    let t3 = test "Left + Right should return Left value" {
+    let ``Left + Right should return Left value`` = test {
         let sut = Either<exn, int>.Left(Exception("bar")).ComputeWith (fun x ->
                     Either<exn, int>.Right(4).Compute (fun y ->
                         x + y) :> IComputable<int>)
@@ -34,7 +35,7 @@ module EitherComputationTest =
         do! assertPred <| sut.ToLeft().IsLeft
     }
 
-    let t4 = test "Left + Left should return Left value" {
+    let ``Left + Left should return Left value`` = test {
         let eitherX = Either<exn, int>.Left(Exception("exn1"))
         let eitherY = Either<exn, int>.Left(Exception("exn2"))
         let sut = eitherX.ComputeWith (fun x ->

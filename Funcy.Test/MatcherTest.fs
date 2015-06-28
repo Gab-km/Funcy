@@ -4,9 +4,10 @@ open Funcy
 
 module MatcherTest =
     open Persimmon
+    open UseTestNameByReflection
     open Funcy.Patterns
 
-    let t1 = test "Matcher should perform the value pattern matching 1" {
+    let ``Matcher should perform the value pattern matching 1`` = test {
         let target = 10
         let is9 = ref false
         let is10 = ref false
@@ -20,7 +21,7 @@ module MatcherTest =
         do! assertPred <| not !isElse
     }
     
-    let t2 = test "Matcher should perform the value pattern matching 2" {
+    let ``Matcher should perform the value pattern matching 2`` = test {
         let target = System.DateTime(2015, 6, 17)
         let is20150617 = ref false
         let is20150618 = ref false
@@ -34,7 +35,7 @@ module MatcherTest =
         do! assertPred <| not !isElse
     }
 
-    let t3 = test "Matcher should perform the value pattern matching 3" {
+    let ``Matcher should perform the value pattern matching 3`` = test {
         let target = "hoge"
         let isCase = ref false
         let isElse = ref false
@@ -45,7 +46,7 @@ module MatcherTest =
         do! assertPred !isElse
     }
 
-    let t4 = test "Matcher should throw MatchFailureException when any patterns are unmatched" {
+    let ``Matcher should throw MatchFailureException when any patterns are unmatched`` = test {
         let target = 3.14159265358979m
         let isMatched = ref false
         let! e = trap { Matcher.Match(target).With(
@@ -55,7 +56,7 @@ module MatcherTest =
         do! assertPred <| not !isMatched
     }
 
-    let t5 = test "Matcher should perform the when pattern matching" {
+    let ``Matcher should perform the when pattern matching`` = test {
         let target = 20
         let isGreaterThan10 = ref false
         let isElse = ref false
@@ -66,7 +67,7 @@ module MatcherTest =
         do! assertPred <| not !isElse
     }
 
-    let t6 = test "Matcher should perform the from pattern matching 1" {
+    let ``Matcher should perform the from pattern matching 1`` = test {
         let target = Maybe<int>.Some(4)
         let value = ref 0
         let isSome = ref false
@@ -79,7 +80,7 @@ module MatcherTest =
         do! assertPred <| not !isElse
     }
 
-    let t7 = test "Matcher should perform the from pattern matching 2" {
+    let ``Matcher should perform the from pattern matching 2`` = test {
         let target = Maybe<string>.None()
         let value = ref ""
         let isSome = ref false
@@ -92,7 +93,7 @@ module MatcherTest =
         do! assertPred !isElse
     }
 
-    let t8 = test "Matcher should perform the from pattern matching 3" {
+    let ``Matcher should perform the from pattern matching 3`` = test {
         let target = Either<exn, int>.Right(3)
         let value = ref 0
         let isRight = ref false
@@ -105,7 +106,7 @@ module MatcherTest =
         do! assertPred <| not !isLeft
     }
 
-    let t9 = test "Matcher should perform the from pattern matching 4" {
+    let ``Matcher should perform the from pattern matching 4`` = test {
         let err = System.Exception("hoge")
         let target = Either<exn, int>.Left(err)
         let valueRight = ref 0
