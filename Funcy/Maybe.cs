@@ -36,9 +36,43 @@ namespace Funcy
 
         IComputable<TReturn> IComputable<T>.ComputeWith<TReturn>(Func<T, IComputable<TReturn>> f)
         {
-            return this.ComputeWith(f);
+            return this.ComputeWith((Func<T, IMaybe<TReturn>>)f);
         }
-        public abstract IMaybe<TReturn> ComputeWith<TReturn>(Func<T, IComputable<TReturn>> f);
+        public abstract IMaybe<TReturn> ComputeWith<TReturn>(Func<T, IMaybe<TReturn>> f);
+
+        IApplicative<TReturn> IApplicative<T>.Apply<TReturn>(IApplicative<Func<T, TReturn>> f)
+        {
+            return this.Apply<TReturn>((IMaybe<Func<T, TReturn>>)f);
+        }
+        public abstract IMaybe<TReturn> Apply<TReturn>(IMaybe<Func<T, TReturn>> f);
+
+        IApplicative<T> IApplicative<T>.ApplyLeft<TReturn>(IApplicative<TReturn> other)
+        {
+            return this.ApplyLeft<TReturn>((IMaybe<TReturn>)other);
+        }
+        public IMaybe<T> ApplyLeft<TReturn>(IMaybe<TReturn> other)
+        {
+            return this;
+        }
+
+        IApplicative<TReturn> IApplicative<T>.ApplyRight<TReturn>(IApplicative<TReturn> other)
+        {
+            return this.ApplyRight<TReturn>((IMaybe<TReturn>)other);
+        }
+        public IMaybe<TReturn> ApplyRight<TReturn>(IMaybe<TReturn> other)
+        {
+            return other;
+        }
+        
+        bool System.Collections.IStructuralEquatable.Equals(object other, System.Collections.IEqualityComparer comparer)
+        {
+            return this.Equals(other);
+        }
+
+        int System.Collections.IStructuralEquatable.GetHashCode(System.Collections.IEqualityComparer comparer)
+        {
+            return this.GetHashCode();
+        }
     }
 
     public class Some<T> : Maybe<T>, ISome<T>, IExtractor<T>
@@ -73,14 +107,45 @@ namespace Funcy
             return Maybe<TReturn>.Some(f(this.value));
         }
 
-        public override IMaybe<TReturn> ComputeWith<TReturn>(Func<T, IComputable<TReturn>> f)
+        public override IMaybe<TReturn> ComputeWith<TReturn>(Func<T, IMaybe<TReturn>> f)
         {
-            return (IMaybe<TReturn>)f(this.value);
+            return f(this.value);
         }
 
         public T Extract()
         {
             return this.value;
+        }
+
+        public override IMaybe<TReturn> Apply<TReturn>(IMaybe<Func<T, TReturn>> f)
+        {
+            if (f.IsSome)
+            {
+                return Maybe<TReturn>.Some(f.ToSome().Value(this.value));
+            }
+            else
+            {
+                return Maybe<TReturn>.None();
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            if (obj is Some<T>)
+            {
+                var other = (Some<T>)obj;
+                return this.value.Equals(other.value);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return this.value.GetHashCode();
         }
     }
 
@@ -109,9 +174,32 @@ namespace Funcy
             return Maybe<TReturn>.None();
         }
 
-        public override IMaybe<TReturn> ComputeWith<TReturn>(Func<T, IComputable<TReturn>> f)
+        public override IMaybe<TReturn> ComputeWith<TReturn>(Func<T, IMaybe<TReturn>> f)
         {
             return Maybe<TReturn>.None();
+        }
+
+        public override IMaybe<TReturn> Apply<TReturn>(IMaybe<Func<T, TReturn>> f)
+        {
+            return Maybe<TReturn>.None();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            if (obj is None<T>)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return this.GetType().GetHashCode();
         }
     }
 }
