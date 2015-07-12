@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Funcy
 {
-    public interface IMaybe<T> : IStructuralEquatable, IComputable<T>, IApplicative<T>
+    public interface IMaybe<T> : IStructuralEquatable, IStructuralComparable, IComputable<T>, IApplicative<T>
     {
         bool IsSome { get; }
         bool IsNone { get; }

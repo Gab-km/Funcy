@@ -66,13 +66,21 @@ namespace Funcy
         
         bool System.Collections.IStructuralEquatable.Equals(object other, System.Collections.IEqualityComparer comparer)
         {
-            return this.Equals(other);
+            return this.Equals(other, comparer);
         }
+        public abstract bool Equals(object other, System.Collections.IEqualityComparer comparer);
 
         int System.Collections.IStructuralEquatable.GetHashCode(System.Collections.IEqualityComparer comparer)
         {
-            return this.GetHashCode();
+            return this.GetHashCode(comparer);
         }
+        public abstract int GetHashCode(System.Collections.IEqualityComparer comparer);
+
+        int System.Collections.IStructuralComparable.CompareTo(object other, System.Collections.IComparer comparer)
+        {
+            return this.CompareTo(other, comparer);
+        }
+        public abstract int CompareTo(object other, System.Collections.IComparer comparer);
     }
 
     public class Some<T> : Maybe<T>, ISome<T>, IExtractor<T>
@@ -129,13 +137,13 @@ namespace Funcy
             }
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object obj, System.Collections.IEqualityComparer comparer)
         {
             if (obj == null) return false;
             if (obj is Some<T>)
             {
                 var other = (Some<T>)obj;
-                return this.value.Equals(other.value);
+                return comparer.Equals(this.value, other.value);
             }
             else
             {
@@ -143,9 +151,37 @@ namespace Funcy
             }
         }
 
+        public override bool Equals(object obj)
+        {
+            return this.Equals(obj, EqualityComparer<T>.Default);
+        }
+
+        public override int GetHashCode(System.Collections.IEqualityComparer comparer)
+        {
+            return comparer.GetHashCode(this.value);
+        }
+
         public override int GetHashCode()
         {
-            return this.value.GetHashCode();
+            return this.GetHashCode(EqualityComparer<T>.Default);
+        }
+
+        public override int CompareTo(object other, System.Collections.IComparer comparer)
+        {
+            if (other == null) return 0;
+            if (other is Some<T>)
+            {
+                var some = (Some<T>)other;
+                return comparer.Compare(this.value, some.value);
+            }
+            else if (other is None<T>)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
         }
     }
 
@@ -184,22 +220,49 @@ namespace Funcy
             return Maybe<TReturn>.None();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object other, System.Collections.IEqualityComparer comparer)
         {
-            if (obj == null) return false;
-            if (obj is None<T>)
+            if (other == null) return false;
+            if (other is None<T>)
             {
-                return true;
+                var none = (None<T>)other;
+                return comparer.Equals(this.GetType().DeclaringType, none.GetType().DeclaringType);
             }
             else
             {
                 return false;
             }
         }
+        public override bool Equals(object obj)
+        {
+            return this.Equals(obj, EqualityComparer<T>.Default);
+        }
 
+        public override int GetHashCode(System.Collections.IEqualityComparer comparer)
+        {
+            return comparer.GetHashCode();
+        }
         public override int GetHashCode()
         {
-            return this.GetType().GetHashCode();
+            return this.GetHashCode(EqualityComparer<T>.Default);
+        }
+
+        public override int CompareTo(object other, System.Collections.IComparer comparer)
+        {
+            if (other == null) return 0;
+            if (other is Some<T>)
+            {
+                return -1;
+            }
+            else if (other is None<T>)
+            {
+                var none = (None<T>)other;
+                return comparer.Compare(this.GetType().DeclaringType, none.GetType().DeclaringType);
+            }
+            else
+            {
+                return comparer.Compare(this, other);
+            }
         }
     }
 }

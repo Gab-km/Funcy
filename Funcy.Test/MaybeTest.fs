@@ -72,12 +72,18 @@ module MaybeTest =
         let some = Maybe.Some(5)
         let other = Maybe.Some(5)
         do! assertEquals some other
+        do! assertPred (some = other)
         do! assertEquals <|| (some.GetHashCode(), other.GetHashCode())
     }
     let ``Some<T> should have equality2`` = test {
         let some = Maybe.Some("hoge")
         let other = Maybe.Some("fuga")
         do! assertNotEquals some other
+    }
+    let ``Some<T> should have equality3`` = test {
+        let some = Maybe.Some(3.14)
+        let other = Maybe.Some(3.14f)
+        do! (not >> assertPred) <| some.Equals(other)
     }
     let ``None<T> should have equality1`` = test {
         let none : None<float> = Maybe.None()
@@ -100,4 +106,13 @@ module MaybeTest =
         do! assertNotEquals some1 some3
         do! assertNotEquals some1 none
         do! assertNotEquals some3 none
+    }
+    let ``Maybe<T> should have comparability`` = test {
+        let some1 = Maybe.Some(1) :> Maybe<int>
+        let some2 = Maybe.Some(2) :> Maybe<int>
+        let none = Maybe.None() :> Maybe<int>
+        do! assertPred (some1 < some2)
+        do! assertPred (some2 > some1)
+        do! assertPred (none < some1)
+        do! assertPred (none < some2)
     }
