@@ -4,7 +4,9 @@ Funcy is the one of the functional libraries for C#/VB.
 
 ## Usage
 
-```c#
+C#:
+
+```csharp
 using System;
 using Funcy;
 using Funcy.Patterns;
@@ -28,6 +30,8 @@ namespace Hello
     }
 }
 ```
+
+VB:
 
 ```vb
 Imports Funcy

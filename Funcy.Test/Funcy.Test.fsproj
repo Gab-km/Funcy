@@ -60,6 +60,10 @@
     <Compile Include="MaybeComputationTest.fs" />
     <Compile Include="EitherComputationTest.fs" />
     <Compile Include="MatcherTest.fs" />
+    <Compile Include="MaybeApplicativeTest.fs" />
+    <Compile Include="EitherApplicativeTest.fs" />
+    <Compile Include="MaybeFunctorTest.fs" />
+    <Compile Include="EitherFunctorTest.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Funcy\Funcy.csproj">

@@ -26,10 +26,10 @@ module MatcherTest =
         let is20150617 = ref false
         let is20150618 = ref false
         let isElse = ref false
-        let matcher = Matcher.Match(target).With(
-                                Case.Of(System.DateTime(2015, 6, 17)).Then(fun () -> is20150617 := true),
-                                Case.Of(System.DateTime(2015, 6, 18)).Then(fun () -> is20150618 := true),
-                                Case.Else().Then(fun () -> isElse := true))
+        do Matcher.Match(target).With(
+            Case.Of(System.DateTime(2015, 6, 17)).Then(fun () -> is20150617 := true),
+            Case.Of(System.DateTime(2015, 6, 18)).Then(fun () -> is20150618 := true),
+            Case.Else().Then(fun () -> isElse := true))
         do! assertPred !is20150617
         do! assertPred <| not !is20150618
         do! assertPred <| not !isElse

@@ -39,6 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Computations\IApplicative.cs" />
+    <Compile Include="Computations\IFunctor.cs" />
     <Compile Include="Patterns\Case.cs" />
     <Compile Include="Either.cs" />
     <Compile Include="Computations\IComputable.cs" />

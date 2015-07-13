@@ -19,13 +19,29 @@ namespace Funcy
         {
             return new Right<TLeft, TRight>(right);
         }
-
+        
+        ILeft<TLeft, TRight> IEither<TLeft, TRight>.ToLeft()
+        {
+            return this.ToLeft();
+        }
         public abstract ILeft<TLeft, TRight> ToLeft();
-
+        
+        IRight<TLeft, TRight> IEither<TLeft, TRight>.ToRight()
+        {
+            return this.ToRight();
+        }
         public abstract IRight<TLeft, TRight> ToRight();
-
+        
+        bool IEither<TLeft, TRight>.IsRight
+        {
+            get { return this.IsRight; }
+        }
         public abstract bool IsRight { get; }
-
+        
+        bool IEither<TLeft, TRight>.IsLeft
+        {
+            get { return this.IsLeft; }
+        }
         public abstract bool IsLeft { get; }
 
         IComputable<TReturn> IComputable<TRight>.Compute<TReturn>(Func<TRight, TReturn> f)
@@ -36,9 +52,51 @@ namespace Funcy
 
         IComputable<TReturn> IComputable<TRight>.ComputeWith<TReturn>(Func<TRight, IComputable<TReturn>> f)
         {
-            return this.ComputeWith(f);
+            return this.ComputeWith((Func<TRight, IEither<TLeft, TReturn>>)f);
         }
-        public abstract IEither<TLeft, TReturn> ComputeWith<TReturn>(Func<TRight, IComputable<TReturn>> f);
+        public abstract IEither<TLeft, TReturn> ComputeWith<TReturn>(Func<TRight, IEither<TLeft, TReturn>> f);
+
+        IApplicative<TReturn> IApplicative<TRight>.Apply<TReturn>(IApplicative<Func<TRight, TReturn>> f)
+        {
+            return this.Apply<TReturn>((IEither<TLeft, Func<TRight, TReturn>>)f);
+        }
+        public abstract IEither<TLeft, TReturn> Apply<TReturn>(IEither<TLeft, Func<TRight, TReturn>> f);
+
+        IApplicative<TRight> IApplicative<TRight>.ApplyLeft<TReturn>(IApplicative<TReturn> other)
+        {
+            return this.ApplyLeft<TReturn>((IEither<TLeft, TReturn>)other);
+        }
+        public IEither<TLeft, TRight> ApplyLeft<TReturn>(IEither<TLeft, TReturn> other)
+        {
+            return this;
+        }
+
+        IApplicative<TReturn> IApplicative<TRight>.ApplyRight<TReturn>(IApplicative<TReturn> other)
+        {
+            return this.ApplyRight<TReturn>((IEither<TLeft, TReturn>)other);
+        }
+        public IEither<TLeft, TReturn> ApplyRight<TReturn>(IEither<TLeft, TReturn> other)
+        {
+            return other;
+        }
+
+        bool System.Collections.IStructuralEquatable.Equals(object other, System.Collections.IEqualityComparer comparer)
+        {
+            return this.Equals(other, comparer);
+        }
+        public abstract bool Equals(object other, System.Collections.IEqualityComparer comparer);
+
+        int System.Collections.IStructuralEquatable.GetHashCode(System.Collections.IEqualityComparer comparer)
+        {
+            return this.GetHashCode(comparer);
+        }
+        public abstract int GetHashCode(System.Collections.IEqualityComparer comparer);
+
+        IFunctor<TReturn> IFunctor<TRight>.FMap<TReturn>(Func<TRight, TReturn> f)
+        {
+            return this.FMap(f);
+        }
+        public abstract IEither<TLeft, TReturn> FMap<TReturn>(Func<TRight, TReturn> f);
     }
 
     public class Left<TLeft, TRight> : Either<TLeft, TRight>, ILeft<TLeft, TRight>, IExtractor<TLeft>
@@ -73,7 +131,7 @@ namespace Funcy
             return Either<TLeft, TReturn>.Left(this.value);
         }
 
-        public override IEither<TLeft, TReturn> ComputeWith<TReturn>(Func<TRight, IComputable<TReturn>> f)
+        public override IEither<TLeft, TReturn> ComputeWith<TReturn>(Func<TRight, IEither<TLeft, TReturn>> f)
         {
             return Either<TLeft, TReturn>.Left(this.value);
         }
@@ -81,6 +139,40 @@ namespace Funcy
         public TLeft Extract()
         {
             return this.value;
+        }
+
+        public override IEither<TLeft, TReturn> Apply<TReturn>(IEither<TLeft, Func<TRight, TReturn>> f)
+        {
+            return Either<TLeft, TReturn>.Left(this.value);
+        }
+
+        public override bool Equals(object other, System.Collections.IEqualityComparer comparer)
+        {
+            if (other == null) return false;
+            if (other is Left<TLeft, TRight>)
+            {
+                var left = (Left<TLeft, TRight>)other;
+                return comparer.Equals(this.value, left.value);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode(System.Collections.IEqualityComparer comparer)
+        {
+            return comparer.GetHashCode(this.value);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.GetHashCode(EqualityComparer<TRight>.Default);
+        }
+
+        public override IEither<TLeft, TReturn> FMap<TReturn>(Func<TRight, TReturn> f)
+        {
+            return Either<TLeft, TReturn>.Left(this.value);
         }
     }
 
@@ -115,14 +207,55 @@ namespace Funcy
             return Either<TLeft, TReturn>.Right(f(this.value));
         }
 
-        public override IEither<TLeft, TReturn> ComputeWith<TReturn>(Func<TRight, IComputable<TReturn>> f)
+        public override IEither<TLeft, TReturn> ComputeWith<TReturn>(Func<TRight, IEither<TLeft, TReturn>> f)
         {
-            return (IEither<TLeft, TReturn>)f(this.value);
+            return f(this.value);
         }
 
         public TRight Extract()
         {
             return this.value;
+        }
+
+        public override IEither<TLeft, TReturn> Apply<TReturn>(IEither<TLeft, Func<TRight, TReturn>> f)
+        {
+            if (f.IsRight)
+            {
+                return Either<TLeft, TReturn>.Right(f.ToRight().Value(this.value));
+            }
+            else
+            {
+                return Either<TLeft, TReturn>.Left(f.ToLeft().Value);
+            }
+        }
+
+        public override bool Equals(object other, System.Collections.IEqualityComparer comparer)
+        {
+            if (other == null) return false;
+            if (other is Right<TLeft, TRight>)
+            {
+                var right = (Right<TLeft, TRight>)other;
+                return comparer.Equals(this.value, right.value);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode(System.Collections.IEqualityComparer comparer)
+        {
+            return comparer.GetHashCode(this.value);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.GetHashCode(EqualityComparer<TRight>.Default);
+        }
+
+        public override IEither<TLeft, TReturn> FMap<TReturn>(Func<TRight, TReturn> f)
+        {
+            return Either<TLeft, TReturn>.Right(f(this.value));
         }
     }
 }

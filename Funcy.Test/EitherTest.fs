@@ -75,3 +75,53 @@ module EitherTest =
         let left = Either<exn, bool>.Left(Exception("ToLeft")) :> IEither<exn, bool>
         do! assertPred (left.ToLeft() :? ILeft<exn, bool>)
     }
+    let ``Right<TLeft, TRight> should have equality1`` = test {
+        let right = Either<exn, string>.Right("seven")
+        let other = Either<exn, string>.Right("seven")
+        do! assertEquals right other
+        do! assertPred (right = other)
+        do! assertEquals <|| (right.GetHashCode(), other.GetHashCode())
+    }
+    let ``Right<TLeft, TRight> should have equality2`` = test {
+        let right = Either<exn, int>.Right(7)
+        let other = Either<exn, int>.Right(8)
+        do! assertNotEquals right other
+    }
+    let ``Right<TLeft, TRight> should have equality3`` = test {
+        let right = Either<exn, float>.Right(3.14)
+        let other = Either<exn, float32>.Right(3.14f)
+        do! (not >> assertPred) <| right.Equals(other)
+    }
+    let ``Left<TLeft, TRight> should have equality1`` = test {
+        let err = Exception("error")
+        let left = Either<exn, float>.Left(err)
+        let other = Either<exn, float>.Left(err)
+        do! assertEquals left other
+        do! assertPred (left = other)
+    }
+    let ``Left<TLeft, TRight> should have equality2`` = test {
+        let left = Either<exn, decimal>.Left(Exception("hoge"))
+        let other = Either<exn, decimal>.Left(Exception("fuga"))
+        do! assertNotEquals left other
+    }
+    let ``Left<TLeft, TRight> should have equality3`` = test {
+        let left = Either<System.IO.IOException, int>.Left(System.IO.IOException("Exception"))
+        let other = Either<System.ApplicationException, int>.Left(System.ApplicationException("Exception"))
+        do! (not >> assertPred) <| left.Equals(other)
+    }
+    let ``Either<TLeft, TRight> should have equality`` = test {
+        let right1 = Either<exn, System.DateTime>.Right(System.DateTime(2015, 7, 12)) :> IEither<exn, System.DateTime>
+        let right2 = Either<exn, System.DateTime>.Right(System.DateTime(2015, 7, 12)) :> IEither<exn, System.DateTime>
+        let right3 = Either<exn, System.DateTime>.Right(System.DateTime(2015, 7, 13)) :> IEither<exn, System.DateTime>
+        let err = Exception("hoge")
+        let left1 = Either<exn, System.DateTime>.Left(err) :> IEither<exn, System.DateTime>
+        let left2 = Either<exn, System.DateTime>.Left(err) :> IEither<exn, System.DateTime>
+        let left3 = Either<exn, System.DateTime>.Left(Exception("hoge")) :> IEither<exn, System.DateTime>
+        do! assertEquals right1 right2
+        do! assertNotEquals right1 right3
+        do! assertEquals left1 left2
+        do! assertNotEquals left1 left3
+        do! assertNotEquals right1 left1
+        do! assertNotEquals right1 left3
+        do! assertNotEquals right3 left1
+    }
