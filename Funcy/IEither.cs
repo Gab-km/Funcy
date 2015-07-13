@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Funcy
 {
-    public interface IEither<TLeft, TRight> : IStructuralEquatable, IComputable<TRight>, IApplicative<TRight>
+    public interface IEither<TLeft, TRight> : IStructuralEquatable, IComputable<TRight>, IApplicative<TRight>, IFunctor<TRight>
     {
         bool IsLeft { get; }
         bool IsRight { get; }

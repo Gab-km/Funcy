@@ -19,13 +19,29 @@ namespace Funcy
         {
             return new None<T>();
         }
-
+        
+        ISome<T> IMaybe<T>.ToSome()
+        {
+            return this.ToSome();
+        }
         public abstract ISome<T> ToSome();
-
+        
+        INone<T> IMaybe<T>.ToNone()
+        {
+            return this.ToNone();
+        }
         public abstract INone<T> ToNone();
 
+        bool IMaybe<T>.IsSome
+        {
+            get { return this.IsSome; }
+        }
         public abstract bool IsSome { get; }
-
+        
+        bool IMaybe<T>.IsNone
+        {
+            get { return this.IsNone; }
+        }
         public abstract bool IsNone { get; }
 
         IComputable<TReturn> IComputable<T>.Compute<TReturn>(Func<T, TReturn> f)
@@ -81,6 +97,12 @@ namespace Funcy
             return this.CompareTo(other, comparer);
         }
         public abstract int CompareTo(object other, System.Collections.IComparer comparer);
+
+        IFunctor<TReturn> IFunctor<T>.FMap<TReturn>(Func<T, TReturn> f)
+        {
+            return this.FMap(f);
+        }
+        public abstract IMaybe<TReturn> FMap<TReturn>(Func<T, TReturn> f);
     }
 
     public class Some<T> : Maybe<T>, ISome<T>, IExtractor<T>
@@ -183,6 +205,11 @@ namespace Funcy
                 return 0;
             }
         }
+
+        public override IMaybe<TReturn> FMap<TReturn>(Func<T, TReturn> f)
+        {
+            return Maybe<TReturn>.Some(f(this.value));
+        }
     }
 
     public class None<T> : Maybe<T>, INone<T>
@@ -263,6 +290,11 @@ namespace Funcy
             {
                 return comparer.Compare(this, other);
             }
+        }
+
+        public override IMaybe<TReturn> FMap<TReturn>(Func<T, TReturn> f)
+        {
+            return Maybe<TReturn>.None();
         }
     }
 }
