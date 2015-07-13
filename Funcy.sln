@@ -27,7 +27,6 @@ Global
 		{CC17A4AE-0DD9-494C-9A75-71F5CE5798E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CC17A4AE-0DD9-494C-9A75-71F5CE5798E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC17A4AE-0DD9-494C-9A75-71F5CE5798E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CC17A4AE-0DD9-494C-9A75-71F5CE5798E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
