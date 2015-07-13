@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Funcy</id>
+        <version>0.2.0</version>
+        <authors>Kazuhiro Matsushima</authors>
+        <licenseUrl>https://github.com/Gab-km/Funcy/blob/master/LICENSE.txt</licenseUrl>
+        <projectUrl>https://github.com/Gab-km/Funcy</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Funcy is the one of the functional libraries for C#/VB.</description>
+        <language>en-US</language>
+        <tags>c# vb functional</tags>
+    </metadata>
+    <files />
+</package>
