@@ -1,6 +1,6 @@
 # Funcy
 
-Funcy is the one of the functional libraries for C#/VB.
+Funcy is one of the functional libraries for C#/VB.
 
 ## Usage
 
