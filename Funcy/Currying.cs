@@ -121,7 +121,7 @@ namespace Funcy
             return new CurriedAction<T1, T2, T3, T4>(f);
         }
 
-        public static CurriedAction<T1, T2, T3, T4, T5> Curry<T1, T2, T3, T4, T5, TReturn>(Action<T1, T2, T3, T4, T5> f)
+        public static CurriedAction<T1, T2, T3, T4, T5> Curry<T1, T2, T3, T4, T5>(Action<T1, T2, T3, T4, T5> f)
         {
             return new CurriedAction<T1, T2, T3, T4, T5>(f);
         }

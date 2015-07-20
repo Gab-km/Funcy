@@ -106,6 +106,17 @@ module CurryingTest =
         }
 
     module CurriedActionTest =
+        let ``Curry ((T1, T2) -> void) = T1 -> T2 -> void`` = test {
+            let result = ref 0
+            let add = Action<int, int>(fun x y -> result := x + y)
+            let sut = Currying.Curry(add)
+            do! assertEquals typeof<CurriedAction<int, int>> <| sut.GetType()
+            let add2 = sut.Invoke(2)
+            do! assertEquals typeof<Action<int>> <| add2.GetType()
+            do add2.Invoke(3)
+            do! assertEquals 5 !result
+        }
+
         let ``Curry ((T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) -> void) = T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8 -> T9 -> T10 -> T11 -> T12 -> T13 -> T14 -> T15 -> T16 -> void`` = test {
             let result = ref ""
             let convNconv = Action<byte, byte, int16, int16, int, int, int, int64, int64, int64, decimal, decimal, decimal, decimal, string, string>(
@@ -156,4 +167,75 @@ module CurryingTest =
             do convNconvE.Invoke("9876543210.1234")
             do! assertEquals "9876543210.1234 = 9876543210.1234" !result
         }
-        
+
+    module CurryingExtensionTest =
+        open Funcy.Extensions
+
+        let ``Curry ((T1, T2) -> TReturn) = T1 -> T2 -> TReturn`` = test {
+            let add = Func<int, int, int>(fun x y -> x + y)
+            let sut = add.Curry()
+            do! assertEquals typeof<CurriedFunction<int, int, int>> <| sut.GetType()
+            let add2 = sut.Invoke(2)
+            do! assertEquals typeof<Func<int, int>> <| add2.GetType()
+            do! assertEquals 5 <| add2.Invoke(3)
+        }
+
+        let ``Curry ((T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) -> TReturn) = T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8 -> T9 -> T10 -> T11 -> T12 -> T13 -> T14 -> T15 -> T16 -> TReturn`` = test {
+            let convNconv = Func<byte, byte, int16, int16, int, int, int, int64, int64, int64, decimal, decimal, decimal, decimal, string, string, string>(
+                                fun b1 b2 s1 s2 i1 i2 i3 l1 l2 l3 m1 m2 m3 m4 t1 t2 ->
+                                    Convert.ToString(Convert.ToDecimal(Convert.ToInt64(Convert.ToInt32(Convert.ToInt16(b1 + b2) + s1 + s2) + i1 + i2 + i3) + l1 + l2 + l3) + m1 + m2 + m3 + m4) + t1 + t2)
+            let sut = convNconv.Curry()
+            do! assertEquals "9876543210.1234 = 9876543210.1234"
+                <| sut.Invoke(0uy)
+                        .Invoke(10uy)
+                        .Invoke(200s)
+                        .Invoke(3000s)
+                        .Invoke(40000)
+                        .Invoke(500000)
+                        .Invoke(6000000)
+                        .Invoke(70000000L)
+                        .Invoke(800000000L)
+                        .Invoke(9000000000L)
+                        .Invoke(0.1m)
+                        .Invoke(0.02m)
+                        .Invoke(0.003m)
+                        .Invoke(0.0004m)
+                        .Invoke(" = ")
+                        .Invoke("9876543210.1234")
+        }
+
+        let ``Curry ((T1, T2) -> void) = T1 -> T2 -> void`` = test {
+            let result = ref 0
+            let add = Action<int, int>(fun x y -> result := x + y)
+            let sut = add.Curry()
+            do! assertEquals typeof<CurriedAction<int, int>> <| sut.GetType()
+            let add2 = sut.Invoke(2)
+            do! assertEquals typeof<Action<int>> <| add2.GetType()
+            do add2.Invoke(3)
+            do! assertEquals 5 !result
+        }
+
+        let ``Curry ((T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) -> void) = T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8 -> T9 -> T10 -> T11 -> T12 -> T13 -> T14 -> T15 -> T16 -> void`` = test {
+            let result = ref ""
+            let convNconv = Action<byte, byte, int16, int16, int, int, int, int64, int64, int64, decimal, decimal, decimal, decimal, string, string>(
+                                fun b1 b2 s1 s2 i1 i2 i3 l1 l2 l3 m1 m2 m3 m4 t1 t2 ->
+                                    result := Convert.ToString(Convert.ToDecimal(Convert.ToInt64(Convert.ToInt32(Convert.ToInt16(b1 + b2) + s1 + s2) + i1 + i2 + i3) + l1 + l2 + l3) + m1 + m2 + m3 + m4) + t1 + t2)
+            let sut = convNconv.Curry()
+            do sut.Invoke(0uy)
+                    .Invoke(10uy)
+                    .Invoke(200s)
+                    .Invoke(3000s)
+                    .Invoke(40000)
+                    .Invoke(500000)
+                    .Invoke(6000000)
+                    .Invoke(70000000L)
+                    .Invoke(800000000L)
+                    .Invoke(9000000000L)
+                    .Invoke(0.1m)
+                    .Invoke(0.02m)
+                    .Invoke(0.003m)
+                    .Invoke(0.0004m)
+                    .Invoke(" = ")
+                    .Invoke("9876543210.1234")
+            do! assertEquals "9876543210.1234 = 9876543210.1234" !result
+        }
