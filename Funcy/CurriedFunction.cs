@@ -9,6 +9,11 @@ namespace Funcy
     {
         private Func<T1, Func<T2, TReturn>> curriedF;
 
+        public static implicit operator Func<T1, Func<T2, TReturn>>(CurriedFunction<T1, T2, TReturn> cf)
+        {
+            return cf.curriedF;
+        }
+
         public CurriedFunction(Func<T1, T2, TReturn> f)
         {
             this.curriedF = (t1) => new Func<T2, TReturn>(t2 => f(t1, t2));
@@ -23,6 +28,11 @@ namespace Funcy
     public class CurriedFunction<T1, T2, T3, TReturn>
     {
         private Func<T1, CurriedFunction<T2, T3, TReturn>> curriedF;
+
+        public static implicit operator Func<T1, CurriedFunction<T2, T3, TReturn>>(CurriedFunction<T1, T2, T3, TReturn> cf)
+        {
+            return cf.curriedF;
+        }
 
         public CurriedFunction(Func<T1, T2, T3, TReturn> f)
         {
@@ -39,6 +49,12 @@ namespace Funcy
     {
         private Func<T1, CurriedFunction<T2, T3, T4, TReturn>> curriedF;
 
+        public static implicit operator
+            Func<T1, CurriedFunction<T2, T3, T4, TReturn>>(CurriedFunction<T1, T2, T3, T4, TReturn> cf)
+        {
+            return cf.curriedF;
+        }
+
         public CurriedFunction(Func<T1, T2, T3, T4, TReturn> f)
         {
             this.curriedF = (t1) =>
@@ -53,7 +69,13 @@ namespace Funcy
 
     public class CurriedFunction<T1, T2, T3, T4, T5, TReturn>
     {
-        private Func<T1, CurriedFunction< T2, T3, T4, T5, TReturn>> curriedF;
+        private Func<T1, CurriedFunction<T2, T3, T4, T5, TReturn>> curriedF;
+
+        public static implicit operator
+            Func<T1, CurriedFunction<T2, T3, T4, T5, TReturn>>(CurriedFunction<T1, T2, T3, T4, T5, TReturn> cf)
+        {
+            return cf.curriedF;
+        }
 
         public CurriedFunction(Func<T1, T2, T3, T4, T5, TReturn> f)
         {
@@ -72,6 +94,12 @@ namespace Funcy
     {
         private Func<T1, CurriedFunction<T2, T3, T4, T5, T6, TReturn>> curriedF;
 
+        public static implicit operator
+            Func<T1, CurriedFunction<T2, T3, T4, T5, T6, TReturn>>(CurriedFunction<T1, T2, T3, T4, T5, T6, TReturn> cf)
+        {
+            return cf.curriedF;
+        }
+
         public CurriedFunction(Func<T1, T2, T3, T4, T5, T6, TReturn> f)
         {
             this.curriedF = (t1) =>
@@ -89,6 +117,12 @@ namespace Funcy
     {
         private Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, TReturn>> curriedF;
 
+        public static implicit operator
+            Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, TReturn>>(CurriedFunction<T1, T2, T3, T4, T5, T6, T7, TReturn> cf)
+        {
+            return cf.curriedF;
+        }
+
         public CurriedFunction(Func<T1, T2, T3, T4, T5, T6, T7, TReturn> f)
         {
             this.curriedF = (t1) =>
@@ -104,7 +138,15 @@ namespace Funcy
 
     public class CurriedFunction<T1, T2, T3, T4, T5, T6, T7, T8, TReturn>
     {
-        private Func<T1,CurriedFunction< T2, T3, T4, T5, T6, T7, T8, TReturn>> curriedF;
+        private Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, T8, TReturn>> curriedF;
+
+        public static implicit operator
+            Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, T8, TReturn>>(
+                CurriedFunction<T1, T2, T3, T4, T5, T6, T7, T8, TReturn> cf
+            )
+        {
+            return cf.curriedF;
+        }
 
         public CurriedFunction(Func<T1, T2, T3, T4, T5, T6, T7, T8, TReturn> f)
         {
@@ -122,7 +164,15 @@ namespace Funcy
 
     public class CurriedFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, TReturn>
     {
-        private Func<T1,CurriedFunction< T2, T3, T4, T5, T6, T7, T8, T9, TReturn>> curriedF;
+        private Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, T8, T9, TReturn>> curriedF;
+
+        public static implicit operator
+            Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, T8, T9, TReturn>>(
+                CurriedFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, TReturn> cf
+            )
+        {
+            return cf.curriedF;
+        }
 
         public CurriedFunction(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TReturn> f)
         {
@@ -140,7 +190,15 @@ namespace Funcy
 
     public class CurriedFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TReturn>
     {
-        private Func<T1,CurriedFunction< T2, T3, T4, T5, T6, T7, T8, T9, T10, TReturn>> curriedF;
+        private Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, T8, T9, T10, TReturn>> curriedF;
+
+        public static implicit operator
+            Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, T8, T9, T10, TReturn>>(
+                CurriedFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TReturn> cf
+            )
+        {
+            return cf.curriedF;
+        }
 
         public CurriedFunction(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TReturn> f)
         {
@@ -158,7 +216,15 @@ namespace Funcy
 
     public class CurriedFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TReturn>
     {
-        private Func<T1,CurriedFunction< T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TReturn>> curriedF;
+        private Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TReturn>> curriedF;
+
+        public static implicit operator
+            Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TReturn>>(
+                CurriedFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TReturn> cf
+            )
+        {
+            return cf.curriedF;
+        }
 
         public CurriedFunction(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TReturn> f)
         {
@@ -176,7 +242,15 @@ namespace Funcy
 
     public class CurriedFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TReturn>
     {
-        private Func<T1,CurriedFunction< T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TReturn>> curriedF;
+        private Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TReturn>> curriedF;
+
+        public static implicit operator
+            Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TReturn>>(
+                CurriedFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TReturn> cf
+            )
+        {
+            return cf.curriedF;
+        }
 
         public CurriedFunction(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TReturn> f)
         {
@@ -197,6 +271,14 @@ namespace Funcy
     {
         private Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TReturn>> curriedF;
 
+        public static implicit operator
+            Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TReturn>>(
+                CurriedFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TReturn> cf
+            )
+        {
+            return cf.curriedF;
+        }
+
         public CurriedFunction(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TReturn> f)
         {
             this.curriedF = (t1) =>
@@ -215,6 +297,14 @@ namespace Funcy
     public class CurriedFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TReturn>
     {
         private Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TReturn>> curriedF;
+
+        public static implicit operator
+            Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TReturn>>(
+                CurriedFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TReturn> cf
+            )
+        {
+            return cf.curriedF;
+        }
 
         public CurriedFunction(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TReturn> f)
         {
@@ -235,6 +325,14 @@ namespace Funcy
     {
         private Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TReturn>> curriedF;
 
+        public static implicit operator
+            Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TReturn>>(
+                CurriedFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TReturn> cf
+            )
+        {
+            return cf.curriedF;
+        }
+
         public CurriedFunction(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TReturn> f)
         {
             this.curriedF = (t1) =>
@@ -253,6 +351,14 @@ namespace Funcy
     public class CurriedFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TReturn>
     {
         private Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TReturn>> curriedF;
+
+        public static implicit operator
+            Func<T1, CurriedFunction<T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TReturn>>(
+                CurriedFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TReturn> cf
+            )
+        {
+            return cf.curriedF;
+        }
 
         public CurriedFunction(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TReturn> f)
         {

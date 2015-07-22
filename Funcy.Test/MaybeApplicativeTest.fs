@@ -7,6 +7,8 @@ open Persimmon
 open UseTestNameByReflection
 
 module MaybeApplicativeTest =
+    open Funcy.Extensions
+
     let ``Apply: Maybe<int> -> Maybe<int -> int> -> Maybe<int>`` = test {
         let maybeX = Maybe.Some(1)
         let maybeF = Maybe.Some(Func<int, int>(fun x -> x + 3))
@@ -64,4 +66,22 @@ module MaybeApplicativeTest =
         let sut = none.ApplyRight(Maybe.Some(0xCAuy))
         do! assertEquals typeof<Some<byte>> <| sut.GetType()
         do! assertEquals sut <| (Maybe.Some(0xCAuy) :> IMaybe<byte>)
+    }
+
+    let ``Some(+ 5) <*> Some(3) = Some(8)`` = test {
+        let add = Func<int, int, int>(fun x y -> x + y)
+        let maybeAdd5 = Maybe.Some(add.Curry().Invoke(5))
+        let maybe3 = Maybe.Some(3)
+        let sut = maybe3.Apply(maybeAdd5)
+        do! assertPred sut.IsSome
+        do! assertEquals 8 <| sut.ToSome().Value
+    }
+
+    let ``Some(+) <*> Some(5) = Some(+ 5)`` = test {
+        let add = Func<int, int, int>(fun x y -> x + y)
+        let inline (!>) (x:^a) : ^b = ((^a or ^b) : (static member op_Implicit : ^a -> ^b) x)   // for implicit conversion in F#
+        let maybeAdd = Maybe.Some(!> add.Curry())
+        let maybe5 = Maybe.Some(5)
+        let sut = maybe5.Apply(maybeAdd)
+        do! assertEquals 8 <| Maybe.Some(3).Apply(sut).ToSome().Value
     }
