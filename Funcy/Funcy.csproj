@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Composition.cs" />
     <Compile Include="Computations\IApplicative.cs" />
     <Compile Include="Computations\IFunctor.cs" />
     <Compile Include="CurriedAction.cs" />
