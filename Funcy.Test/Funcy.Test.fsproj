@@ -35,12 +35,20 @@
     <DocumentationFile>bin\Release\Funcy.Persimmon.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FsRandom">
+      <HintPath>..\packages\FsRandom.1.3.3\lib\net40\FsRandom.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
     </Reference>
     <Reference Include="Persimmon">
       <HintPath>..\packages\Persimmon.1.0.0-beta6\lib\net20\Persimmon.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Persimmon.Dried">
+      <HintPath>..\packages\Persimmon.Dried.1.0.0-beta6\lib\net40\Persimmon.Dried.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Persimmon.Runner">
@@ -66,6 +74,7 @@
     <Compile Include="EitherFunctorTest.fs" />
     <Compile Include="CurryingTest.fs" />
     <Compile Include="CompositionTest.fs" />
+    <Compile Include="FunctorLawsCheck.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Funcy\Funcy.csproj">
