@@ -12,22 +12,26 @@ module FunctorLawsCheck =
     module FunctorLawsInMaybe =
         let ``Identity in Some<T>`` = Prop.forAll(Arb.int)(fun i ->
             let maybe = Maybe.Some(i)
+            // fmap id == id
             maybe.FMap(funcId) = (maybe :> IMaybe<int>)
         )
 
         let ``Identity in None<T>`` = Prop.forAll(Arb.int)(fun i ->
             let maybe = Maybe<int>.None()
+            // fmap id == id
             maybe.FMap(funcId) = (maybe :> IMaybe<int>)
         )
 
         let ``Composition in Some<T>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f g i ->
             let maybe = Maybe.Some(i)
-            maybe.FMap(f).FMap(g) = (maybe.FMap(Composition.Compose(g, f)) :> IFunctor<int>)
+            // fmap (f . g) == fmap f . fmap g
+            maybe.FMap(Composition.Compose(g, f)) :> IFunctor<int> = maybe.FMap(f).FMap(g)
         )
 
         let ``Composition in None<T>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int))(fun f g ->
             let maybe = Maybe<int>.None()
-            maybe.FMap(f).FMap(g) = (maybe.FMap(Composition.Compose(g, f)) :> IFunctor<int>)
+            // fmap (f . g) == fmap f . fmap g
+            maybe.FMap(Composition.Compose(g, f)) :> IFunctor<int> = maybe.FMap(f).FMap(g)
         )
 
         let ``Functor laws`` = property {
@@ -40,22 +44,26 @@ module FunctorLawsCheck =
     module FunctorLawsInEither =
         let ``Identity in Right<TLeft, TRight>`` = Prop.forAll(Arb.int)(fun i ->
             let either = Either<exn, int>.Right(i)
+            // fmap id == id
             either.FMap(funcId) = (either :> IEither<exn, int>)
         )
 
-        let ``Identity in Left<TLeft, TRight>`` = Prop.forAll(Arb.int)(fun i ->
-            let either = Either<exn, int>.Left(exn("hoge"))
+        let ``Identity in Left<TLeft, TRight>`` = Prop.forAll(Arb.string)(fun s ->
+            let either = Either<exn, int>.Left(exn(s))
+            // fmap id == id
             either.FMap(funcId) = (either :> IEither<exn, int>)
         )
 
         let ``Composition in Right<TLeft, TRight>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f g i ->
             let either = Either<exn, int>.Right(i)
-            either.FMap(f).FMap(g) = (either.FMap(Composition.Compose(g, f)) :> IFunctor<int>)
+            // fmap (f . g) == fmap f . fmap g
+            either.FMap(Composition.Compose(g, f)) :> IFunctor<int> = either.FMap(f).FMap(g)
         )
 
-        let ``Composition in Left<TLeft, TRight>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int))(fun f g ->
-            let either = Either<exn, int>.Left(exn("fuga"))
-            either.FMap(f).FMap(g) = (either.FMap(Composition.Compose(g, f)) :> IFunctor<int>)
+        let ``Composition in Left<TLeft, TRight>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.string)(fun f g s ->
+            let either = Either<exn, int>.Left(exn(s))
+            // fmap (f . g) == fmap f . fmap g
+            either.FMap(Composition.Compose(g, f)) :> IFunctor<int> = either.FMap(f).FMap(g)
         )
 
         let ``Functor laws`` = property {
