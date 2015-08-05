@@ -52,7 +52,7 @@ namespace Funcy
 
         IComputable<TReturn> IComputable<TRight>.ComputeWith<TReturn>(Func<TRight, IComputable<TReturn>> f)
         {
-            return this.ComputeWith((Func<TRight, IEither<TLeft, TReturn>>)f);
+            return this.ComputeWith(x => (IEither<TLeft, TReturn>)f(x));
         }
         public abstract IEither<TLeft, TReturn> ComputeWith<TReturn>(Func<TRight, IEither<TLeft, TReturn>> f);
 

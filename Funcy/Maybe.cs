@@ -52,7 +52,7 @@ namespace Funcy
 
         IComputable<TReturn> IComputable<T>.ComputeWith<TReturn>(Func<T, IComputable<TReturn>> f)
         {
-            return this.ComputeWith((Func<T, IMaybe<TReturn>>)f);
+            return this.ComputeWith(x => (IMaybe<TReturn>)f(x));
         }
         public abstract IMaybe<TReturn> ComputeWith<TReturn>(Func<T, IMaybe<TReturn>> f);
 
