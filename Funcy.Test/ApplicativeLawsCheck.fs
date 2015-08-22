@@ -17,13 +17,13 @@ module ApplicativeLawsCheck =
         let ``Identity in Some<T>`` = Prop.forAll(Arb.int)(fun i ->
             let v = Maybe.Some(i)
             // pure id <*> v = v
-            v.Apply(pureMaybe funcId) = (v :> IMaybe<int>)
+            v.Apply(pureMaybe funcId) = (v :> Maybe<int>)
         )
 
         let ``Identity in None<T>`` = Prop.forAll(Arb.int)(fun i ->
             let v = Maybe<int>.None()
             // pure id <*> v = v
-            v.Apply(pureMaybe funcId) = (v :> IMaybe<int>)
+            v.Apply(pureMaybe funcId) = (v :> Maybe<int>)
         )
 
         let ``Composition in Maybe<T> 1`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f g i ->
@@ -33,7 +33,7 @@ module ApplicativeLawsCheck =
             let pointed = pureMaybe <|
                             (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
             // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
-            w.Apply(v.Apply(u.Apply(pointed))) :> IApplicative<int> = w.Apply(v).Apply(u)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
         )
 
         let ``Composition in Maybe<T> 2`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun g i ->
@@ -43,7 +43,7 @@ module ApplicativeLawsCheck =
             let pointed = pureMaybe <|
                             (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
             // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
-            w.Apply(v.Apply(u.Apply(pointed))) :> IApplicative<int> = w.Apply(v).Apply(u)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
         )
 
         let ``Composition in Maybe<T> 3`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f i ->
@@ -53,7 +53,7 @@ module ApplicativeLawsCheck =
             let pointed = pureMaybe <|
                             (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
             // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
-            w.Apply(v.Apply(u.Apply(pointed))) :> IApplicative<int> = w.Apply(v).Apply(u)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
         )
 
         let ``Composition in Maybe<T> 4`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int))(fun f g ->
@@ -63,12 +63,12 @@ module ApplicativeLawsCheck =
             let pointed = pureMaybe <|
                             (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
             // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
-            w.Apply(v.Apply(u.Apply(pointed))) :> IApplicative<int> = w.Apply(v).Apply(u)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
         )
 
         let ``Homomorphism in Maybe<T>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f x ->
             // pure f <*> pure x = pure (f x)
-            (pureMaybe x).Apply(pureMaybe f) = (pureMaybe(f.Invoke(x)) :> IMaybe<int>)
+            (pureMaybe x).Apply(pureMaybe f) = (pureMaybe(f.Invoke(x)) :> Maybe<int>)
         )
 
         let ``Interchange in Maybe<T>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f y ->

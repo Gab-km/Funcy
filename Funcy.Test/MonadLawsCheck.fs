@@ -12,57 +12,57 @@ module MonadLawsCheck =
         let returnMaybe<'T> x = (Maybe.Some(x) :> Maybe<'T>)
 
         let ``Left identity in Maybe<T> 1`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f a ->
-            let f_ = Func<int, IMaybe<int>>(fun x -> Maybe.Some(f.Invoke(x)) :> IMaybe<int>)
+            let f_ = Func<int, Maybe<int>>(fun x -> Maybe.Some(f.Invoke(x)) :> Maybe<int>)
             // return a >>= f ≡ f a
             (returnMaybe a).ComputeWith(f_) = f_.Invoke(a)
         )
         
         let ``Left identity in Maybe<T> 2`` = Prop.forAll(Arb.int)(fun a ->
-            let f_ = Func<int, IMaybe<int>>(fun _ -> Maybe.None() :> IMaybe<int>)
+            let f_ = Func<int, Maybe<int>>(fun _ -> Maybe.None() :> Maybe<int>)
             // return a >>= f ≡ f a
             (returnMaybe a).ComputeWith(f_) = f_.Invoke(a)
         )
 
         let ``Right identity in Maybe<T> 1`` = Prop.forAll(Arb.int)(fun i ->
-            let m = Maybe.Some(i) :> Maybe<int>
+            let m = Maybe.Some(i)
             // m >>= return ≡ m
-            m.ComputeWith(Func<int, IMaybe<int>>(fun x -> returnMaybe x :> IMaybe<int>)) = (m :> IMaybe<int>)
+            m.ComputeWith(Func<int, Maybe<int>>(fun x -> returnMaybe x)) = (m :> Maybe<int>)
         )
 
         let ``Right identity in Maybe<T> 2`` = Prop.forAll(Arb.int)(fun _ ->
-            let m = Maybe.None() :> Maybe<int>
+            let m = Maybe.None()
             // m >>= return ≡ m
-            m.ComputeWith(Func<int, IMaybe<int>>(fun x -> returnMaybe x :> IMaybe<int>)) = (m :> IMaybe<int>)
+            m.ComputeWith(Func<int, Maybe<int>>(fun x -> returnMaybe x)) = (m :> Maybe<int>)
         )
 
         let ``Associativity in Maybe<T> 1`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f g i ->
-            let m = Maybe.Some(i) :> IMaybe<int>
-            let f_ = Func<int, IComputable<int>>(fun x -> Maybe.Some(f.Invoke(x)) :> IComputable<int>)
-            let g_ = Func<int, IComputable<int>>(fun x -> Maybe.Some(g.Invoke(x)) :> IComputable<int>)
+            let m = Maybe.Some(i)
+            let f_ = Func<int, Maybe<int>>(fun x -> Maybe.Some(f.Invoke(x)) :> Maybe<int>)
+            let g_ = Func<int, Maybe<int>>(fun x -> Maybe.Some(g.Invoke(x)) :> Maybe<int>)
             // (m >>= f) >>= g ≡ m >>= (\x -> f x >>= g)
             m.ComputeWith(f_).ComputeWith(g_) = m.ComputeWith(fun x -> f_.Invoke(x).ComputeWith(g_))
         )
 
         let ``Associativity in Maybe<T> 2`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int))(fun f g ->
-            let m = Maybe.None() :> IMaybe<int>
-            let f_ = Func<int, IComputable<int>>(fun x -> Maybe.Some(f.Invoke(x)) :> IComputable<int>)
-            let g_ = Func<int, IComputable<int>>(fun x -> Maybe.Some(g.Invoke(x)) :> IComputable<int>)
+            let m = Maybe.None()
+            let f_ = Func<int, Maybe<int>>(fun x -> Maybe.Some(f.Invoke(x)) :> Maybe<int>)
+            let g_ = Func<int, Maybe<int>>(fun x -> Maybe.Some(g.Invoke(x)) :> Maybe<int>)
             // (m >>= f) >>= g ≡ m >>= (\x -> f x >>= g)
             m.ComputeWith(f_).ComputeWith(g_) = m.ComputeWith(fun x -> f_.Invoke(x).ComputeWith(g_))
         )
 
         let ``Associativity in Maybe<T> 3`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun g i ->
-            let m = Maybe.Some(i) :> IMaybe<int>
-            let f_ = Func<int, IComputable<int>>(fun _ -> Maybe.None() :> IComputable<int>)
-            let g_ = Func<int, IComputable<int>>(fun x -> Maybe.Some(g.Invoke(x)) :> IComputable<int>)
+            let m = Maybe.Some(i)
+            let f_ = Func<int, Maybe<int>>(fun _ -> Maybe.None() :> Maybe<int>)
+            let g_ = Func<int, Maybe<int>>(fun x -> Maybe.Some(g.Invoke(x)) :> Maybe<int>)
             // (m >>= f) >>= g ≡ m >>= (\x -> f x >>= g)
             m.ComputeWith(f_).ComputeWith(g_) = m.ComputeWith(fun x -> f_.Invoke(x).ComputeWith(g_))
         )
 
         let ``Associativity in Maybe<T> 4`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f i ->
-            let m = Maybe.Some(i) :> IMaybe<int>
-            let f_ = Func<int, IComputable<int>>(fun x -> Maybe.Some(f.Invoke(x)) :> IComputable<int>)
-            let g_ = Func<int, IComputable<int>>(fun _ -> Maybe.None() :> IComputable<int>)
+            let m = Maybe.Some(i)
+            let f_ = Func<int, Maybe<int>>(fun x -> Maybe.Some(f.Invoke(x)) :> Maybe<int>)
+            let g_ = Func<int, Maybe<int>>(fun _ -> Maybe.None() :> Maybe<int>)
             // (m >>= f) >>= g ≡ m >>= (\x -> f x >>= g)
             m.ComputeWith(f_).ComputeWith(g_) = m.ComputeWith(fun x -> f_.Invoke(x).ComputeWith(g_))
         )

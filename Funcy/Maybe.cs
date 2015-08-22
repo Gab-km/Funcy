@@ -1,6 +1,7 @@
 ﻿using Funcy.Computations;
 using Funcy.Patterns;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Funcy
 {
-    public abstract class Maybe<T> : IMaybe<T>
+    public abstract class Maybe<T> : IStructuralEquatable, IStructuralComparable, IComputable<T>, IApplicative<T>, IFunctor<T>
     {
         public static Some<T> Some(T value)
         {
@@ -19,63 +20,51 @@ namespace Funcy
         {
             return new None<T>();
         }
-        
-        ISome<T> IMaybe<T>.ToSome()
-        {
-            return this.ToSome();
-        }
-        public abstract ISome<T> ToSome();
-        
-        INone<T> IMaybe<T>.ToNone()
-        {
-            return this.ToNone();
-        }
-        public abstract INone<T> ToNone();
 
-        bool IMaybe<T>.IsSome
+        public Some<T> ToSome()
         {
-            get { return this.IsSome; }
+            return (Some<T>)this;
         }
+        public None<T> ToNone()
+        {
+            return (None<T>)this;
+        }
+
         public abstract bool IsSome { get; }
-        
-        bool IMaybe<T>.IsNone
-        {
-            get { return this.IsNone; }
-        }
         public abstract bool IsNone { get; }
 
         IComputable<TReturn> IComputable<T>.Compute<TReturn>(Func<T, TReturn> f)
         {
             return this.Compute(f);
         }
-        public abstract IMaybe<TReturn> Compute<TReturn>(Func<T, TReturn> f);
+        public abstract Maybe<TReturn> Compute<TReturn>(Func<T, TReturn> f);
 
         IComputable<TReturn> IComputable<T>.ComputeWith<TReturn>(Func<T, IComputable<TReturn>> f)
         {
-            return this.ComputeWith(x => (IMaybe<TReturn>)f(x));
+            return this.ComputeWith(x => (Maybe<TReturn>)f(x));
         }
-        public abstract IMaybe<TReturn> ComputeWith<TReturn>(Func<T, IMaybe<TReturn>> f);
+        public abstract Maybe<TReturn> ComputeWith<TReturn>(Func<T, Maybe<TReturn>> f);
 
         IApplicative<TReturn> IApplicative<T>.Apply<TReturn>(IApplicative<Func<T, TReturn>> f)
         {
-            return this.Apply<TReturn>((IMaybe<Func<T, TReturn>>)f);
+            return this.Apply<TReturn>((Maybe<Func<T, TReturn>>)f);
         }
-        public abstract IMaybe<TReturn> Apply<TReturn>(IMaybe<Func<T, TReturn>> f);
+        public abstract Maybe<TReturn> Apply<TReturn>(Maybe<Func<T, TReturn>> f);
 
         IApplicative<T> IApplicative<T>.ApplyLeft<TReturn>(IApplicative<TReturn> other)
         {
-            return this.ApplyLeft<TReturn>((IMaybe<TReturn>)other);
+            return this.ApplyLeft<TReturn>((Maybe<TReturn>)other);
         }
-        public IMaybe<T> ApplyLeft<TReturn>(IMaybe<TReturn> other)
+        public Maybe<T> ApplyLeft<TReturn>(Maybe<TReturn> other)
         {
             return this;
         }
 
         IApplicative<TReturn> IApplicative<T>.ApplyRight<TReturn>(IApplicative<TReturn> other)
         {
-            return this.ApplyRight<TReturn>((IMaybe<TReturn>)other);
+            return this.ApplyRight<TReturn>((Maybe<TReturn>)other);
         }
-        public IMaybe<TReturn> ApplyRight<TReturn>(IMaybe<TReturn> other)
+        public Maybe<TReturn> ApplyRight<TReturn>(Maybe<TReturn> other)
         {
             return other;
         }
@@ -102,13 +91,13 @@ namespace Funcy
         {
             return this.FMap(f);
         }
-        public abstract IMaybe<TReturn> FMap<TReturn>(Func<T, TReturn> f);
+        public abstract Maybe<TReturn> FMap<TReturn>(Func<T, TReturn> f);
     }
 
-    public class Some<T> : Maybe<T>, ISome<T>, IExtractor<T>
+    public class Some<T> : Maybe<T>, IExtractor<T>
     {
         private T value;
-        T ISome<T>.Value
+        public T Value
         {
             get { return this.value; }
         }
@@ -122,22 +111,12 @@ namespace Funcy
 
         public override bool IsNone { get { return !this.IsSome; } }
 
-        public override ISome<T> ToSome()
-        {
-            return this;
-        }
-
-        public override INone<T> ToNone()
-        {
-            return (INone<T>)this;
-        }
-
-        public override IMaybe<TReturn> Compute<TReturn>(Func<T, TReturn> f)
+        public override Maybe<TReturn> Compute<TReturn>(Func<T, TReturn> f)
         {
             return Maybe<TReturn>.Some(f(this.value));
         }
 
-        public override IMaybe<TReturn> ComputeWith<TReturn>(Func<T, IMaybe<TReturn>> f)
+        public override Maybe<TReturn> ComputeWith<TReturn>(Func<T, Maybe<TReturn>> f)
         {
             return f(this.value);
         }
@@ -147,7 +126,7 @@ namespace Funcy
             return this.value;
         }
 
-        public override IMaybe<TReturn> Apply<TReturn>(IMaybe<Func<T, TReturn>> f)
+        public override Maybe<TReturn> Apply<TReturn>(Maybe<Func<T, TReturn>> f)
         {
             if (f.IsSome)
             {
@@ -206,13 +185,13 @@ namespace Funcy
             }
         }
 
-        public override IMaybe<TReturn> FMap<TReturn>(Func<T, TReturn> f)
+        public override Maybe<TReturn> FMap<TReturn>(Func<T, TReturn> f)
         {
             return Maybe<TReturn>.Some(f(this.value));
         }
     }
 
-    public class None<T> : Maybe<T>, INone<T>
+    public class None<T> : Maybe<T>
     {
         public None()
         {
@@ -222,27 +201,17 @@ namespace Funcy
 
         public override bool IsNone { get { return !this.IsSome; } }
 
-        public override ISome<T> ToSome()
-        {
-            return (ISome<T>)this;
-        }
-
-        public override INone<T> ToNone()
-        {
-            return this;
-        }
-
-        public override IMaybe<TReturn> Compute<TReturn>(Func<T, TReturn> f)
+        public override Maybe<TReturn> Compute<TReturn>(Func<T, TReturn> f)
         {
             return Maybe<TReturn>.None();
         }
 
-        public override IMaybe<TReturn> ComputeWith<TReturn>(Func<T, IMaybe<TReturn>> f)
+        public override Maybe<TReturn> ComputeWith<TReturn>(Func<T, Maybe<TReturn>> f)
         {
             return Maybe<TReturn>.None();
         }
 
-        public override IMaybe<TReturn> Apply<TReturn>(IMaybe<Func<T, TReturn>> f)
+        public override Maybe<TReturn> Apply<TReturn>(Maybe<Func<T, TReturn>> f)
         {
             return Maybe<TReturn>.None();
         }
@@ -292,7 +261,7 @@ namespace Funcy
             }
         }
 
-        public override IMaybe<TReturn> FMap<TReturn>(Func<T, TReturn> f)
+        public override Maybe<TReturn> FMap<TReturn>(Func<T, TReturn> f)
         {
             return Maybe<TReturn>.None();
         }

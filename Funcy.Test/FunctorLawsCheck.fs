@@ -13,25 +13,25 @@ module FunctorLawsCheck =
         let ``Identity in Some<T>`` = Prop.forAll(Arb.int)(fun i ->
             let maybe = Maybe.Some(i)
             // fmap id == id
-            maybe.FMap(funcId) = (maybe :> IMaybe<int>)
+            maybe.FMap(funcId) = (maybe :> Maybe<int>)
         )
 
         let ``Identity in None<T>`` = Prop.forAll(Arb.int)(fun i ->
             let maybe = Maybe<int>.None()
             // fmap id == id
-            maybe.FMap(funcId) = (maybe :> IMaybe<int>)
+            maybe.FMap(funcId) = (maybe :> Maybe<int>)
         )
 
         let ``Composition in Some<T>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f g i ->
             let maybe = Maybe.Some(i)
             // fmap (f . g) == fmap f . fmap g
-            maybe.FMap(Composition.Compose(g, f)) :> IFunctor<int> = maybe.FMap(f).FMap(g)
+            maybe.FMap(Composition.Compose(g, f)) = maybe.FMap(f).FMap(g)
         )
 
         let ``Composition in None<T>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int))(fun f g ->
             let maybe = Maybe<int>.None()
             // fmap (f . g) == fmap f . fmap g
-            maybe.FMap(Composition.Compose(g, f)) :> IFunctor<int> = maybe.FMap(f).FMap(g)
+            maybe.FMap(Composition.Compose(g, f)) = maybe.FMap(f).FMap(g)
         )
 
         let ``Functor laws`` = property {
