@@ -94,13 +94,13 @@ module ApplicativeLawsCheck =
         let ``Identity in Right<TLeft, TRight>`` = Prop.forAll(Arb.int)(fun i ->
             let v = Either.Right(i)
             // pure id <*> v = v
-            v.Apply(pureEither funcId) = (v :> IEither<exn, int>)
+            v.Apply(pureEither funcId) = (v :> Either<exn, int>)
         )
         
         let ``Identity in Left<TLeft, TRight>`` = Prop.forAll(Arb.string)(fun s ->
             let v = Either.Left(exn(s))
             // pure id <*> v = v
-            v.Apply(pureEither funcId) = (v :> IEither<exn, int>)
+            v.Apply(pureEither funcId) = (v :> Either<exn, int>)
         )
 
         let ``Composition in Either<TLeft, TRight> 1`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f g i ->
@@ -110,7 +110,7 @@ module ApplicativeLawsCheck =
             let pointed = pureEither <|
                             (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
             // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
-            w.Apply(v.Apply(u.Apply(pointed))) :> IApplicative<int> = w.Apply(v).Apply(u)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
         )
 
         let ``Composition in Either<TLeft, TRight> 2`` = Prop.forAll(Arb.string, Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun s g i ->
@@ -120,7 +120,7 @@ module ApplicativeLawsCheck =
             let pointed = pureEither <|
                             (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
             // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
-            w.Apply(v.Apply(u.Apply(pointed))) :> IApplicative<int> = w.Apply(v).Apply(u)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
         )
 
         let ``Composition in Either<TLeft, TRight> 3`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.string, Arb.int)(fun f s i ->
@@ -130,7 +130,7 @@ module ApplicativeLawsCheck =
             let pointed = pureEither <|
                             (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
             // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
-            w.Apply(v.Apply(u.Apply(pointed))) :> IApplicative<int> = w.Apply(v).Apply(u)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
         )
 
         let ``Composition in Either<TLeft, TRight> 4`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.string)(fun f g s ->
@@ -140,12 +140,12 @@ module ApplicativeLawsCheck =
             let pointed = pureEither <|
                             (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
             // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
-            w.Apply(v.Apply(u.Apply(pointed))) :> IApplicative<int> = w.Apply(v).Apply(u)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
         )
 
         let ``Homomorphism in Either<TLeft, TRight>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f x ->
             // pure f <*> pure x = pure (f x)
-            (pureEither x).Apply(pureEither f) = (pureEither(f.Invoke(x)) :> IEither<exn, int>)
+            (pureEither x).Apply(pureEither f) = (pureEither(f.Invoke(x)) :> Either<exn, int>)
         )
 
         let ``Interchange in Either<TLeft, TRight>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f y ->
