@@ -8,7 +8,7 @@ namespace Funcy.Patterns
 {
     public interface IPattern
     {
-        IEither<MatchFailureException, Matcher> Matching(Matcher matcher);
+        Either<MatchFailureException, Matcher> Matching(Matcher matcher);
     }
 
     public class Pattern<T> : IPattern
@@ -31,7 +31,7 @@ namespace Funcy.Patterns
             this.actionVoid = Maybe<Action>.None();
         }
 
-        public IEither<MatchFailureException, Matcher> Matching(Matcher matcher)
+        public Either<MatchFailureException, Matcher> Matching(Matcher matcher)
         {
             if (this._case.Test(matcher))
             {
@@ -64,7 +64,7 @@ namespace Funcy.Patterns
             this.action = action;
         }
 
-        public IEither<MatchFailureException, Matcher> Matching(Matcher matcher)
+        public Either<MatchFailureException, Matcher> Matching(Matcher matcher)
         {
             if (this._case.Test(matcher))
             {

@@ -49,9 +49,7 @@
     <Compile Include="Patterns\Case.cs" />
     <Compile Include="Either.cs" />
     <Compile Include="Computations\IComputable.cs" />
-    <Compile Include="IEither.cs" />
     <Compile Include="Patterns\IExtractor.cs" />
-    <Compile Include="IMaybe.cs" />
     <Compile Include="Patterns\Matcher.cs" />
     <Compile Include="Maybe.cs" />
     <Compile Include="Patterns\Pattern.cs" />
