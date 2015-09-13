@@ -10,8 +10,9 @@ namespace Funcy.Patterns
     public interface ICase<T>
     {
         IPattern Then(Action action);
-        bool Test(Matcher matcher);
-        T GetValue(Matcher matcher);
+        IReturnablePattern<TReturn> Then<TReturn>(Func<TReturn> func);
+        bool Test(IMatcher matcher);
+        T GetValue(IMatcher matcher);
     }
 
     public static class Case<T>
@@ -56,12 +57,22 @@ namespace Funcy.Patterns
             return new Pattern<T>(this, action);
         }
 
-        public bool Test(Matcher matcher)
+        public IReturnablePattern<TReturn> Then<TReturn>(Func<TReturn> func)
+        {
+            return new ReturnablePattern<T, TReturn>(this, func);
+        }
+
+        public IReturnablePattern<TReturn> Then<TReturn>(Func<T, TReturn> func)
+        {
+            return new ReturnablePattern<T, TReturn>(this, func);
+        }
+
+        public bool Test(IMatcher matcher)
         {
             return matcher.Target.Equals(this.pattern);
         }
 
-        public T GetValue(Matcher matcher)
+        public T GetValue(IMatcher matcher)
         {
             return this.pattern;
         }
@@ -86,7 +97,17 @@ namespace Funcy.Patterns
             return new Pattern<T>(this, action);
         }
 
-        public bool Test(Matcher matcher)
+        public IReturnablePattern<TReturn> Then<TReturn>(Func<TReturn> func)
+        {
+            return new ReturnablePattern<T, TReturn>(this, func);
+        }
+
+        public IReturnablePattern<TReturn> Then<TReturn>(Func<T, TReturn> func)
+        {
+            return new ReturnablePattern<T, TReturn>(this, func);
+        }
+
+        public bool Test(IMatcher matcher)
         {
             try
             {
@@ -99,7 +120,7 @@ namespace Funcy.Patterns
             }
         }
 
-        public T GetValue(Matcher matcher)
+        public T GetValue(IMatcher matcher)
         {
             return (T)matcher.Target;
         }
@@ -120,8 +141,18 @@ namespace Funcy.Patterns
         {
             return new ExtractPattern<T, U>(this, action);
         }
+        
+        public IReturnablePattern<TReturn> Then<TReturn>(Func<TReturn> func)
+        {
+            return new ReturnablePattern<U, TReturn>(this, func);
+        }
+        
+        public ReturnableExtractPattern<T, U, TReturn> Then<TReturn>(Func<T, TReturn> func)
+        {
+            return new ReturnableExtractPattern<T, U, TReturn>(this, func);
+        }
 
-        public bool Test(Matcher matcher)
+        public bool Test(IMatcher matcher)
         {
             try
             {
@@ -134,12 +165,12 @@ namespace Funcy.Patterns
             }
         }
 
-        public U GetValue(Matcher matcher)
+        public U GetValue(IMatcher matcher)
         {
             return (U)matcher.Target;
         }
 
-        internal T GetInnerValue(Matcher matcher)
+        internal T GetInnerValue(IMatcher matcher)
         {
             IExtractor<T> target = (IExtractor<T>)matcher.Target;
             return target.Extract();
@@ -157,12 +188,17 @@ namespace Funcy.Patterns
             return new Pattern<T>(this, action);
         }
 
-        public bool Test(Matcher matcher)
+        public IReturnablePattern<TReturn> Then<TReturn>(Func<TReturn> func)
+        {
+            return new ReturnablePattern<T, TReturn>(this, func);
+        }
+
+        public bool Test(IMatcher matcher)
         {
             return true;
         }
 
-        public T GetValue(Matcher matcher)
+        public T GetValue(IMatcher matcher)
         {
             return (T)matcher.Target;
         }
