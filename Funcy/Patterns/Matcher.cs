@@ -7,16 +7,29 @@ using Funcy;
 
 namespace Funcy.Patterns
 {
-    public class Matcher
+    public interface IMatcher
     {
-        public static Matcher Match(object target)
+        object Target { get; }
+    }
+
+    public static class Matcher
+    {
+        public static SimpleMatcher Match(object target)
         {
-            return new Matcher(target);
+            return new SimpleMatcher(target);
         }
 
+        public static ReturnableMatcher<TReturn> ReturnMatch<TReturn>(object target)
+        {
+            return new ReturnableMatcher<TReturn>(target);
+        }
+    }
+
+    public class SimpleMatcher : IMatcher
+    {
         public object Target { get; private set; }
 
-        private Matcher(object target)
+        internal SimpleMatcher(object target)
         {
             this.Target = target;
         }
@@ -38,14 +51,33 @@ namespace Funcy.Patterns
         }
     }
 
-    [Serializable]
-    public class MatchFailureException : Exception
+    public class ReturnableMatcher<TReturn> : IMatcher
     {
-      public MatchFailureException() { }
-      public MatchFailureException( string message ) : base( message ) { }
-      public MatchFailureException( string message, Exception inner ) : base( message, inner ) { }
-      protected MatchFailureException( 
-	    System.Runtime.Serialization.SerializationInfo info, 
-	    System.Runtime.Serialization.StreamingContext context ) : base( info, context ) { }
+        public object Target { get; private set; }
+
+        internal ReturnableMatcher(object target)
+        {
+            this.Target = target;
+        }
+
+        public TReturn With(IReturnablePattern<TReturn> pattern, params IReturnablePattern<TReturn>[] patterns)
+        {
+            var matched = pattern.Matching(this);
+            if (matched.IsLeft)
+            {
+                if (patterns.Length > 0)
+                {
+                    return this.With(patterns[0], patterns.Skip(1).ToArray());
+                }
+                else
+                {
+                    throw matched.ToLeft().Value;
+                }
+            }
+            else
+            {
+                return matched.ToRight().Value;
+            }
+        }
     }
 }
