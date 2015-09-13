@@ -14,35 +14,32 @@ namespace Funcy.Patterns
     public class Pattern<T> : IPattern
     {
         private ICase<T> _case;
-        private Maybe<Action> actionVoid;
-        private Maybe<Action<T>> actionT;
+        private Either<Action, Action<T>> action;
 
         internal Pattern(ICase<T> @Case, Action action)
         {
             this._case = @Case;
-            this.actionVoid = Maybe<Action>.Some(action);
-            this.actionT = Maybe<Action<T>>.None();
+            this.action = Either<Action, Action<T>>.Left(action);
         }
 
         internal Pattern(ICase<T> @case, Action<T> action)
         {
             this._case = @case;
-            this.actionT = Maybe<Action<T>>.Some(action);
-            this.actionVoid = Maybe<Action>.None();
+            this.action = Either<Action, Action<T>>.Right(action);
         }
 
         public Either<MatchFailureException, IMatcher> Matching(IMatcher matcher)
         {
             if (this._case.Test(matcher))
             {
-                if (this.actionT.IsSome)
+                if (this.action.IsRight)
                 {
                     var value = this._case.GetValue(matcher);
-                    this.actionT.ToSome().Value.Invoke(value);
+                    this.action.ToRight().Value.Invoke(value);
                 }
                 else
                 {
-                    this.actionVoid.ToSome().Value.Invoke();
+                    this.action.ToLeft().Value.Invoke();
                 }
                 return Either<MatchFailureException, IMatcher>.Right(matcher);
             }
