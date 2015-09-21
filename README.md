@@ -54,6 +54,11 @@ Module Module1
 End Module
 ```
 
+# Documentation
+
+* [English](https://github.com/Gab-km/Funcy/blob/master/docs/en/index.md)
+* [Japanese](https://github.com/Gab-km/Funcy/blob/master/docs/ja/index.md)
+
 # Contribution
 
 Pull Requests are very welcome! You can also open issues freely. The one and only important point is Funcy's tests, which are written in F# and use [Persimmon](https://github.com/persimmon-projects/Persimmon). Try it and familiarize yourself with it!
