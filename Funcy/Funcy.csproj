@@ -42,6 +42,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\List.cs">
+      <Link>List.cs</Link>
+    </Compile>
     <Compile Include="Composition.cs" />
     <Compile Include="Computations\IApplicative.cs" />
     <Compile Include="Computations\IFunctor.cs" />
