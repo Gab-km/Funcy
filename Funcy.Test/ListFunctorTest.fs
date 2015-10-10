@@ -6,7 +6,7 @@ open Funcy.Computations
 open Persimmon
 open UseTestNameByReflection
 
-module MaybeFunctorTest =
+module ListFunctorTest =
     let ``fmap List<int> (int -> int) = List<int>`` = test {
         let list = List.Construct(1, 2, 3)
         let sut = list.FMap(Func<int, int>(fun x -> x * 4))
