@@ -108,8 +108,8 @@ namespace Funcy
         public override int GetHashCode(System.Collections.IEqualityComparer comparer)
         {
             int hash = 17;
-            hash = hash * 31 + this.head.GetHashCode();
-            hash = hash * 31 + this.tail.GetHashCode();
+            hash = hash * 31 + comparer.GetHashCode(this.head);
+            hash = hash * 31 + this.tail.GetHashCode(comparer);
             return hash;
         }
 
