@@ -77,7 +77,7 @@
     <Compile Include="FunctorLawsCheck.fs" />
     <Compile Include="ApplicativeLawsCheck.fs" />
     <Compile Include="MonadLawsCheck.fs" />
-    <Compile Include="ListFunctorTest.fs" />
+    <Compile Include="FuncyListFunctorTest.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Funcy\Funcy.csproj">

@@ -42,9 +42,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\List.cs">
-      <Link>List.cs</Link>
-    </Compile>
     <Compile Include="Composition.cs" />
     <Compile Include="Computations\IApplicative.cs" />
     <Compile Include="Computations\IFunctor.cs" />
@@ -52,6 +49,7 @@
     <Compile Include="CurriedFunction.cs" />
     <Compile Include="Currying.cs" />
     <Compile Include="Extensions\CurryingExtension.cs" />
+    <Compile Include="FuncyList.cs" />
     <Compile Include="Patterns\Case.cs" />
     <Compile Include="Either.cs" />
     <Compile Include="Computations\IComputable.cs" />

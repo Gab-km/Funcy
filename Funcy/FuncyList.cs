@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Funcy
 {
-    public abstract class List<T> : IStructuralEquatable, IStructuralComparable, IFunctor<T>
+    public abstract class FuncyList<T> : IStructuralEquatable, IStructuralComparable, IFunctor<T>
     {
-        public static Cons<T> Cons(T head, List<T> tail)
+        public static Cons<T> Cons(T head, FuncyList<T> tail)
         {
             return new Cons<T>(head, tail);
         }
@@ -21,20 +21,20 @@ namespace Funcy
             return new Nil<T>();
         }
 
-        public static List<T> Construct(params T[] args)
+        public static FuncyList<T> Construct(params T[] args)
         {
-            return List<T>.Construct0(args, 0, args.Length);
+            return FuncyList<T>.Construct0(args, 0, args.Length);
         }
 
-        private static List<T> Construct0(T[] args, int head, int length)
+        private static FuncyList<T> Construct0(T[] args, int head, int length)
         {
             if (length == 0)
             {
-                return List<T>.Nil();
+                return FuncyList<T>.Nil();
             }
             else
             {
-                return List<T>.Cons(args[head], List<T>.Construct0(args, head + 1, length - 1));
+                return FuncyList<T>.Cons(args[head], FuncyList<T>.Construct0(args, head + 1, length - 1));
             }
         }
 
@@ -63,10 +63,10 @@ namespace Funcy
         {
             return this.FMap(f);
         }
-        public abstract List<TReturn> FMap<TReturn>(Func<T, TReturn> f);
+        public abstract FuncyList<TReturn> FMap<TReturn>(Func<T, TReturn> f);
 
     }
-    public class Cons<T> : List<T>
+    public class Cons<T> : FuncyList<T>
     {
         private T head;
         public T Head
@@ -74,13 +74,13 @@ namespace Funcy
             get { return this.head; }
         }
 
-        private List<T> tail;
-        public List<T> Tail
+        private FuncyList<T> tail;
+        public FuncyList<T> Tail
         {
             get { return this.tail; }
         }
 
-        public Cons(T head, List<T> tail)
+        public Cons(T head, FuncyList<T> tail)
         {
             this.head = head;
             this.tail = tail;
@@ -144,13 +144,13 @@ namespace Funcy
             }
         }
 
-        public override List<TReturn> FMap<TReturn>(Func<T, TReturn> f)
+        public override FuncyList<TReturn> FMap<TReturn>(Func<T, TReturn> f)
         {
-            return List<TReturn>.Cons(f(this.head), this.tail.FMap(f));
+            return FuncyList<TReturn>.Cons(f(this.head), this.tail.FMap(f));
         }
     }
 
-    public class Nil<T> : List<T>
+    public class Nil<T> : FuncyList<T>
     {
         public Nil() { }
 
@@ -200,9 +200,9 @@ namespace Funcy
             }
         }
 
-        public override List<TReturn> FMap<TReturn>(Func<T, TReturn> f)
+        public override FuncyList<TReturn> FMap<TReturn>(Func<T, TReturn> f)
         {
-            return List<TReturn>.Nil();
+            return FuncyList<TReturn>.Nil();
         }
     }
 }
