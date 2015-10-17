@@ -105,7 +105,7 @@ module FuncyListTest =
     let ``order on FuncyList<T> is dictionary order`` = test {
         let cons124 = FuncyList.Cons(1, FuncyList.Cons(2, FuncyList.Cons(4, FuncyList.Nil())))
         let cons13 = FuncyList.Cons(1, FuncyList.Cons(3, FuncyList.Nil()))
-        do! assertPred (cons13 < cons124)
+        do! assertPred (cons124 < cons13)
     }
     // comparison between Cons and Nil
     let ``Cons<T> is larger than Nil<T>`` = test {
