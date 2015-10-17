@@ -104,6 +104,10 @@ namespace Funcy
             }
 
         }
+        public override bool Equals(object obj)
+        {
+            return this.Equals(obj, EqualityComparer<T>.Default);
+        }
 
         public override int GetHashCode(System.Collections.IEqualityComparer comparer)
         {
@@ -171,6 +175,11 @@ namespace Funcy
                 return false;
             }
         }
+        public override bool Equals(object obj)
+        {
+            return this.Equals(obj, EqualityComparer<T>.Default);
+        }
+
 
         public override int GetHashCode(System.Collections.IEqualityComparer comparer)
         {
