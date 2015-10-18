@@ -71,7 +71,7 @@ module FuncyListTest =
         let rhs = FuncyList.Cons(3.14f, FuncyList.Nil())
         do! (not >> assertPred) <| lhs.Equals(rhs)
     }
-    let ``when tails difer, Cons<T> should differ`` = test {
+    let ``when tails differ, Cons<T> should differ`` = test {
         let lhs = FuncyList.Cons(1, FuncyList.Cons(2, FuncyList.Nil()))
         let rhs = FuncyList.Cons(1, FuncyList.Nil())
         do! assertNotEquals lhs rhs
