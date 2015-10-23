@@ -113,3 +113,19 @@ module FuncyListTest =
         let nil = FuncyList<int>.Nil()
         do! assertPred ((cons :> FuncyList<int>) > (nil :> FuncyList<int>))
     }
+
+module FuncyListIterableTest =
+    open System.Collections.Generic
+    open System.Linq
+
+    let ``FuncyList<T>.GetEnumerator<T>() returns IEnumerator<T>`` = test {
+        let sut = FuncyList.Construct([|"hoge"; "fuga"; "bar"|])
+        let enumerator = sut.GetEnumerator()
+        do! assertPred <| enumerator.MoveNext()
+        do! assertEquals "hoge" enumerator.Current
+        do! assertPred <| enumerator.MoveNext()
+        do! assertEquals "fuga" enumerator.Current
+        do! assertPred <| enumerator.MoveNext()
+        do! assertEquals "bar" enumerator.Current
+        do! assertPred <| (not <| enumerator.MoveNext())
+    }
