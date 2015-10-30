@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Funcy
 {
-    public abstract class FuncyList<T> : IStructuralEquatable, IStructuralComparable, IFunctor<T>
+    public abstract class FuncyList<T> : IStructuralEquatable, IStructuralComparable, IEnumerable<T>, IApplicative<T>, IFunctor<T>
     {
         public static Cons<T> Cons(T head, FuncyList<T> tail)
         {
@@ -38,6 +38,16 @@ namespace Funcy
             }
         }
 
+        public Cons<T> ToCons()
+        {
+            return (Cons<T>)this;
+        }
+
+        public Nil<T> ToNil()
+        {
+            return (Nil<T>)this;
+        }
+
         public abstract bool IsCons { get; }
         public abstract bool IsNil { get; }
 
@@ -64,8 +74,51 @@ namespace Funcy
             return this.FMap(f);
         }
         public abstract FuncyList<TReturn> FMap<TReturn>(Func<T, TReturn> f);
+        
+        IApplicative<TReturn> IApplicative<T>.Apply<TReturn>(IApplicative<Func<T, TReturn>> f)
+        {
+            return this.Apply<TReturn>((FuncyList<Func<T, TReturn>>)f);
+        }
+        public abstract FuncyList<TReturn> Apply<TReturn>(FuncyList<Func<T, TReturn>> f);
 
+        IApplicative<T> IApplicative<T>.ApplyLeft<TReturn>(IApplicative<TReturn> other)
+        {
+            return this.ApplyLeft((FuncyList<TReturn>)other);
+        }
+        public FuncyList<T> ApplyLeft<TReturn>(FuncyList<TReturn> other)
+        {
+            return this;
+        }
+
+        IApplicative<TReturn> IApplicative<T>.ApplyRight<TReturn>(IApplicative<TReturn> other)
+        {
+            return this.ApplyRight<TReturn>((FuncyList<TReturn>)other);
+        }
+        public FuncyList<TReturn> ApplyRight<TReturn>(FuncyList<TReturn> other)
+        {
+            return other;
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            if (this.IsCons)
+            {
+                var target = this;
+                do
+                {
+                    var cons = target.ToCons();
+                    yield return cons.Head;
+                    target = cons.Tail;
+                } while (target.IsCons);
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
     }
+
     public class Cons<T> : FuncyList<T>
     {
         private T head;
@@ -152,6 +205,18 @@ namespace Funcy
         {
             return FuncyList<TReturn>.Cons(f(this.head), this.tail.FMap(f));
         }
+
+        public override FuncyList<TReturn> Apply<TReturn>(FuncyList<Func<T, TReturn>> f)
+        {
+            if (f.IsCons)
+            {
+                return FuncyList<TReturn>.Construct(f.ToList().SelectMany(fCons => this.FMap(fCons)).ToArray());
+            }
+            else
+            {
+                return FuncyList<TReturn>.Nil();
+            }
+        }
     }
 
     public class Nil<T> : FuncyList<T>
@@ -210,6 +275,11 @@ namespace Funcy
         }
 
         public override FuncyList<TReturn> FMap<TReturn>(Func<T, TReturn> f)
+        {
+            return FuncyList<TReturn>.Nil();
+        }
+
+        public override FuncyList<TReturn> Apply<TReturn>(FuncyList<Func<T, TReturn>> f)
         {
             return FuncyList<TReturn>.Nil();
         }

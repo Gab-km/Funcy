@@ -79,6 +79,7 @@
     <Compile Include="MonadLawsCheck.fs" />
     <Compile Include="FuncyListFunctorTest.fs" />
     <Compile Include="FuncyListTest.fs" />
+    <Compile Include="FuncyListApplicativeTest.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Funcy\Funcy.csproj">
