@@ -72,3 +72,35 @@ module FunctorLawsCheck =
             apply ``Composition in Right<TLeft, TRight>``
             apply ``Composition in Left<TLeft, TRight>``
         }
+
+    module FunctorLawsInFuncyList =
+        let ``Identity in Cons<T>`` = Prop.forAll(Arb.array(Arb.int))(fun a ->
+            let fList = FuncyList.Construct(a)
+            // fmap id == id
+            fList.FMap(funcId) = fList
+        )
+
+        let ``Identity in Nil<T>`` = Prop.forAll(Arb.int)(fun i ->
+            let fList = FuncyList<int>.Nil()
+            // fmap id == id
+            fList.FMap(funcId) = (fList :> FuncyList<int>)
+        )
+
+        let ``Composition in Cons<T>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f g i ->
+            let fList = FuncyList.Cons(i, FuncyList.Nil())
+            // fmap (f . g) == fmap f . fmap g
+            fList.FMap(Composition.Compose(g, f)) = fList.FMap(f).FMap(g)
+        )
+
+        let ``Composition in Nil<T>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int))(fun f g ->
+            let fList = FuncyList<int>.Nil()
+            // fmap (f . g) == fmap f . fmap g
+            fList.FMap(Composition.Compose(g, f)) = fList.FMap(f).FMap(g)
+        )
+
+        let ``Functor laws`` = property {
+            apply ``Identity in Cons<T>``
+            apply ``Identity in Nil<T>``
+            apply ``Composition in Cons<T>``
+            apply ``Composition in Nil<T>``
+        }
