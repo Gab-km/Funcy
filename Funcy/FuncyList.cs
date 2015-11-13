@@ -316,4 +316,36 @@ namespace Funcy
             return FuncyList<TReturn>.Nil();
         }
     }
+
+    public static class FuncyListNT
+    {
+        public static FuncyList<T> Take<T>(this FuncyList<T> self, int length)
+        {
+            if (self.IsNil || length <= 0)
+            {
+                return FuncyList<T>.Nil();
+            }
+            else
+            {
+                var cons = self.ToCons();
+                return FuncyList<T>.Cons(cons.Head, FuncyListNT.Take(cons.Tail, length - 1));
+            }
+        }
+
+        public static Maybe<T> TakeFirst<T>(this FuncyList<T> self)
+        {
+            var take1 = FuncyListNT.Take(self, 1);
+
+            if (take1.IsNil)
+            {
+                return Maybe<T>.None();
+            }
+            else
+            {
+                var cons = self.ToCons();
+                return Maybe<T>.Some(cons.Head);
+            }
+        }
+    }
+
 }
