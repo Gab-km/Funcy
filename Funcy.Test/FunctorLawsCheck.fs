@@ -22,13 +22,13 @@ module FunctorLawsCheck =
             maybe.FMap(funcId) = (maybe :> Maybe<int>)
         )
 
-        let ``Composition in Some<T>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f g i ->
+        let ``Composition in Some<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g i ->
             let maybe = Maybe.Some(i)
             // fmap (f . g) == fmap f . fmap g
             maybe.FMap(Composition.Compose(g, f)) = maybe.FMap(f).FMap(g)
         )
 
-        let ``Composition in None<T>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int))(fun f g ->
+        let ``Composition in None<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int))(fun f g ->
             let maybe = Maybe<int>.None()
             // fmap (f . g) == fmap f . fmap g
             maybe.FMap(Composition.Compose(g, f)) = maybe.FMap(f).FMap(g)
@@ -48,19 +48,19 @@ module FunctorLawsCheck =
             either.FMap(funcId) = (either :> Either<exn, int>)
         )
 
-        let ``Identity in Left<TLeft, TRight>`` = Prop.forAll(Arb.string)(fun s ->
+        let ``Identity in Left<TLeft, TRight>`` = Prop.forAll(Arb.string.NonNull)(fun s ->
             let either = Either<exn, int>.Left(exn(s))
             // fmap id == id
             either.FMap(funcId) = (either :> Either<exn, int>)
         )
 
-        let ``Composition in Right<TLeft, TRight>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f g i ->
+        let ``Composition in Right<TLeft, TRight>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g i ->
             let either = Either<exn, int>.Right(i)
             // fmap (f . g) == fmap f . fmap g
             either.FMap(Composition.Compose(g, f)) = either.FMap(f).FMap(g)
         )
 
-        let ``Composition in Left<TLeft, TRight>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.string)(fun f g s ->
+        let ``Composition in Left<TLeft, TRight>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.string.NonNull)(fun f g s ->
             let either = Either<exn, int>.Left(exn(s))
             // fmap (f . g) == fmap f . fmap g
             either.FMap(Composition.Compose(g, f)) = either.FMap(f).FMap(g)
@@ -74,7 +74,7 @@ module FunctorLawsCheck =
         }
 
     module FunctorLawsInFuncyList =
-        let ``Identity in Cons<T>`` = Prop.forAll(Arb.array(Arb.int))(fun a ->
+        let ``Identity in Cons<T>`` = Prop.forAll(Arb.array(Arb.int).NonNull)(fun a ->
             let fList = FuncyList.Construct(a)
             // fmap id == id
             fList.FMap(funcId) = fList
@@ -86,13 +86,13 @@ module FunctorLawsCheck =
             fList.FMap(funcId) = (fList :> FuncyList<int>)
         )
 
-        let ``Composition in Cons<T>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f g i ->
+        let ``Composition in Cons<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g i ->
             let fList = FuncyList.Cons(i, FuncyList.Nil())
             // fmap (f . g) == fmap f . fmap g
             fList.FMap(Composition.Compose(g, f)) = fList.FMap(f).FMap(g)
         )
 
-        let ``Composition in Nil<T>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int))(fun f g ->
+        let ``Composition in Nil<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int))(fun f g ->
             let fList = FuncyList<int>.Nil()
             // fmap (f . g) == fmap f . fmap g
             fList.FMap(Composition.Compose(g, f)) = fList.FMap(f).FMap(g)
