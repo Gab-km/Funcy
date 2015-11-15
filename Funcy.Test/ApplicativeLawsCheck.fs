@@ -164,3 +164,80 @@ module ApplicativeLawsCheck =
             apply ``Homomorphism in Either<TLeft, TRight>``
             apply ``Interchange in Either<TLeft, TRight>``
         }
+
+    module ApplicativeLawsInFuncyList =
+        let pureFList x = FuncyList.Construct([|x|])
+        
+        let ``Identity in Cons<T>`` = Prop.forAll(Arb.int)(fun i ->
+            let v = FuncyList.Cons(i, FuncyList.Nil())
+            // pure id <*> v = v
+            v.Apply(pureFList funcId) = (v :> FuncyList<int>)
+        )
+
+        let ``Identity in Nil<T>`` = Prop.forAll(Arb.int)(fun i ->
+            let v = FuncyList<int>.Nil()
+            // pure id <*> v = v
+            v.Apply(pureFList funcId) = (v :> FuncyList<int>)
+        )
+
+        let ``Composition in FuncyList<T> 1`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f g i ->
+            let u = FuncyList.Cons(f, FuncyList.Nil())
+            let v = FuncyList.Construct([|g|])
+            let w = FuncyList.Cons(i, FuncyList.Nil())
+            let pointed = pureFList <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Composition in FuncyList<T> 2`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.array(Arb.int))(fun g a ->
+            let u = FuncyList.Nil()
+            let v = FuncyList.Cons(g, FuncyList.Nil())
+            let w = FuncyList.Construct(a)
+            let pointed = pureFList <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Composition in FuncyList<T> 3`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f i ->
+            let u = FuncyList.Cons(f, FuncyList.Nil())
+            let v = FuncyList.Nil()
+            let w = FuncyList.Cons(i, FuncyList.Nil())
+            let pointed = pureFList <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Composition in FuncyList<T> 4`` = Prop.forAll(Arb.array(Arb.systemFunc(CoArbitrary.int, Arb.int)), Arb.systemFunc(CoArbitrary.int, Arb.int))(fun fs g ->
+            let u = FuncyList.Construct(fs)
+            let v = FuncyList.Construct([|g|])
+            let w = FuncyList.Nil()
+            let pointed = pureFList <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Homomorphism in FuncyList<T>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f x ->
+            // pure f <*> pure x = pure (f x)
+            (pureFList x).Apply(pureFList f) = pureFList(f.Invoke(x))
+        )
+
+        let ``Interchange in FuncyList<T>`` = Prop.forAll(Arb.systemFunc(CoArbitrary.int, Arb.int), Arb.int)(fun f y ->
+            // u <*> pure y = pure ($ y) <*> u
+            let u = FuncyList.Cons(f, FuncyList.Nil())
+            (pureFList y).Apply(u) = u.Apply(pureFList <| Func<Func<int, int>, int>(fun f_ -> f_.Invoke(y)))
+        )
+
+        let ``Applicative laws`` = property {
+            apply ``Identity in Cons<T>``
+            apply ``Identity in Nil<T>``
+            apply ``Composition in FuncyList<T> 1``
+            apply ``Composition in FuncyList<T> 2``
+            apply ``Composition in FuncyList<T> 3``
+            apply ``Composition in FuncyList<T> 4``
+            apply ``Homomorphism in FuncyList<T>``
+            apply ``Interchange in FuncyList<T>``
+        }

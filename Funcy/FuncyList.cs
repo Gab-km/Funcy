@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Funcy
 {
-    public abstract class FuncyList<T> : IStructuralEquatable, IStructuralComparable, IEnumerable<T>, IApplicative<T>, IFunctor<T>
+    public abstract class FuncyList<T> : IStructuralEquatable, IStructuralComparable, IEnumerable<T>, IComputable<T>, IApplicative<T>, IFunctor<T>
     {
         public static Cons<T> Cons(T head, FuncyList<T> tail)
         {
@@ -117,6 +117,18 @@ namespace Funcy
         {
             return this.GetEnumerator();
         }
+
+        IComputable<TReturn> IComputable<T>.Compute<TReturn>(Func<T, TReturn> f)
+        {
+            return this.Compute(f);
+        }
+        public abstract FuncyList<TReturn> Compute<TReturn>(Func<T, TReturn> f);
+
+        IComputable<TReturn> IComputable<T>.ComputeWith<TReturn>(Func<T, IComputable<TReturn>> f)
+        {
+            return this.ComputeWith(x => (FuncyList<TReturn>)f(x));
+        }
+        public abstract FuncyList<TReturn> ComputeWith<TReturn>(Func<T, FuncyList<TReturn>> f);
     }
 
     public class Cons<T> : FuncyList<T>
@@ -217,6 +229,16 @@ namespace Funcy
                 return FuncyList<TReturn>.Nil();
             }
         }
+
+        public override FuncyList<TReturn> Compute<TReturn>(Func<T, TReturn> f)
+        {
+            return FuncyList<TReturn>.Cons(f(this.head), this.tail.Compute(f));
+        }
+
+        public override FuncyList<TReturn> ComputeWith<TReturn>(Func<T, FuncyList<TReturn>> f)
+        {
+            return FuncyList<TReturn>.Construct(this.SelectMany(h => f(h)).ToArray());
+        }
     }
 
     public class Nil<T> : FuncyList<T>
@@ -280,6 +302,16 @@ namespace Funcy
         }
 
         public override FuncyList<TReturn> Apply<TReturn>(FuncyList<Func<T, TReturn>> f)
+        {
+            return FuncyList<TReturn>.Nil();
+        }
+
+        public override FuncyList<TReturn> Compute<TReturn>(Func<T, TReturn> f)
+        {
+            return FuncyList<TReturn>.Nil();
+        }
+
+        public override FuncyList<TReturn> ComputeWith<TReturn>(Func<T, FuncyList<TReturn>> f)
         {
             return FuncyList<TReturn>.Nil();
         }
