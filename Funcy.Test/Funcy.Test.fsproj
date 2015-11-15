@@ -81,6 +81,8 @@
     <Compile Include="FuncyListTest.fs" />
     <Compile Include="FuncyListApplicativeTest.fs" />
     <Compile Include="FuncyListComputationTest.fs" />
+    <Compile Include="FuncyListNTTest.fs" />
+    <Compile Include="NaturalTransformationLawsCheck.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Funcy\Funcy.csproj">
