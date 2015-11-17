@@ -80,6 +80,7 @@
     <Compile Include="FuncyListNTTest.fs" />
     <Compile Include="NaturalTransformationLawsCheck.fs" />
     <Content Include="app.config" />
+    <Compile Include="NonEmptyListTest.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsPickler">
