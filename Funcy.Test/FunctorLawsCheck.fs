@@ -104,3 +104,49 @@ module FunctorLawsCheck =
             apply ``Composition in Cons<T>``
             apply ``Composition in Nil<T>``
         }
+
+    module FunctorLawsInNonEmptyList =
+        let ``Identity in NonEmptyList<T>`` = Prop.forAll(Arb.nonEmptyList(Arb.int))(fun ls ->
+            let nel = NonEmptyList.Construct(ls)
+            // fmap id == id
+            nel.FMap(funcId) = nel
+        )
+        
+        let ``Identity in ConsNEL<T>`` = Prop.forAll(Arb.int, Arb.int)(fun x y ->
+            let consNEL = NonEmptyList.ConsNEL(x, NonEmptyList.Singleton(y))
+            // fmap id == id
+            consNEL.FMap(funcId) = (consNEL :> NonEmptyList<int>)
+        )
+
+        let ``Identity in Singleton<T>`` = Prop.forAll(Arb.int)(fun i ->
+            let singleton = NonEmptyList<int>.Singleton(i)
+            // fmap id == id
+            singleton.FMap(funcId) = (singleton :> NonEmptyList<int>)
+        )
+
+        let ``Composition in NonEmptyList<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmptyList(Arb.int))(fun f g ls ->
+            let nel = NonEmptyList.Construct(ls)
+            // fmap (f . g) == fmap f . fmap g
+            nel.FMap(Composition.Compose(g, f)) = nel.FMap(f).FMap(g)
+        )
+
+        let ``Composition in ConsNEL<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int, Arb.int)(fun f g i j ->
+            let consNEL = NonEmptyList.ConsNEL(i, NonEmptyList.Singleton(j))
+            // fmap (f . g) == fmap f . fmap g
+            consNEL.FMap(Composition.Compose(g, f)) = consNEL.FMap(f).FMap(g)
+        )
+
+        let ``Composition in Singleton<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g i ->
+            let singleton = NonEmptyList.Singleton(i)
+            // fmap (f . g) == fmap f . fmap g
+            singleton.FMap(Composition.Compose(g, f)) = singleton.FMap(f).FMap(g)
+        )
+
+        let ``Functor laws`` = property {
+            apply ``Identity in NonEmptyList<T>``
+            apply ``Identity in ConsNEL<T>``
+            apply ``Identity in Singleton<T>``
+            apply ``Composition in NonEmptyList<T>``
+            apply ``Composition in ConsNEL<T>``
+            apply ``Composition in Singleton<T>``
+        }
