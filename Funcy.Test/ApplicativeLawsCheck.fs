@@ -241,3 +241,100 @@ module ApplicativeLawsCheck =
             apply ``Homomorphism in FuncyList<T>``
             apply ``Interchange in FuncyList<T>``
         }
+
+    module ApplicativeLawsInNonEmptyList =
+        let pureNEL x = NonEmptyList.Construct([x])
+        
+        let ``Identity in NonEmptyList<T>`` = Prop.forAll(Arb.nonEmptyList(Arb.int))(fun ls ->
+            let v = NonEmptyList.Construct(ls)
+            // pure id <*> v = v
+            v.Apply(pureNEL funcId) = v
+        )
+        
+        let ``Identity in ConsNEL<T>`` = Prop.forAll(Arb.int, Arb.int)(fun i j ->
+            let v = NonEmptyList.ConsNEL(i, NonEmptyList.Singleton(j))
+            // pure id <*> v = v
+            v.Apply(pureNEL funcId) = (v :> NonEmptyList<int>)
+        )
+
+        let ``Identity in Singleton<T>`` = Prop.forAll(Arb.int)(fun i ->
+            let v = NonEmptyList.Singleton(i)
+            // pure id <*> v = v
+            v.Apply(pureNEL funcId) = (v :> NonEmptyList<int>)
+        )
+
+        let ``Composition in NonEmptyList<T> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmptyList(Arb.systemFunc(CoArb.int, Arb.int)), Arb.int, Arb.int)(fun f gs i j ->
+            let u = NonEmptyList.Singleton(f)
+            let v = NonEmptyList.Construct(gs)
+            let w = NonEmptyList.ConsNEL(i, NonEmptyList.Singleton(j))
+            let pointed = pureNEL <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+        
+        let ``Composition in NonEmptyList<T> 2`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmptyList(Arb.int))(fun f g h ls ->
+            let u = NonEmptyList.ConsNEL(f, NonEmptyList.Singleton(g))
+            let v = NonEmptyList.Singleton(h)
+            let w = NonEmptyList.Construct(ls)
+            let pointed = pureNEL <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Composition in NonEmptyList<T> 3`` = Prop.forAll(Arb.nonEmptyList(Arb.systemFunc(CoArb.int, Arb.int)), Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun fs g h i ->
+            let u = NonEmptyList.Construct(fs)
+            let v = NonEmptyList.ConsNEL(g, NonEmptyList.Singleton(h))
+            let w = NonEmptyList.Singleton(i)
+            let pointed = pureNEL <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let arbFs = {
+          Gen = Gen.listOfLength 3 <| Arb.systemFunc(CoArb.int, Arb.int).Gen
+          Shrinker = Shrink.shrinkList <| Arb.systemFunc(CoArb.int, Arb.int).Shrinker
+          PrettyPrinter = Pretty.prettyList
+        }
+
+        let arbLs = {
+          Gen = Gen.listOfLength 3 <| Arb.int.Gen
+          Shrinker = Shrink.shrinkList <| Arb.int.Shrinker
+          PrettyPrinter = Pretty.prettyList
+        }
+
+        let ``Composition in NonEmptyList<T> 4`` = Prop.forAll(arbFs, arbFs, arbLs)(fun fs gs ls ->
+            let u = NonEmptyList.Construct(fs)
+            let v = NonEmptyList.Construct(gs)
+            let w = NonEmptyList.Construct(ls)
+            let pointed = pureNEL <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Homomorphism in NonEmptyList<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f x ->
+            // pure f <*> pure x = pure (f x)
+            (pureNEL x).Apply(pureNEL f) = pureNEL(f.Invoke(x))
+        )
+
+        let ``Interchange in NonEmptyList<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g y ->
+            // u <*> pure y = pure ($ y) <*> u
+            let u = NonEmptyList.ConsNEL(f, NonEmptyList.Singleton(g))
+            (pureNEL y).Apply(u) = u.Apply(pureNEL <| Func<Func<int, int>, int>(fun f_ -> f_.Invoke(y)))
+        )
+
+        let ``Applicative laws`` = property {
+            apply ``Identity in NonEmptyList<T>``
+            apply ``Identity in ConsNEL<T>``
+            apply ``Identity in Singleton<T>``
+            apply ``Composition in NonEmptyList<T> 1``
+            apply ``Composition in NonEmptyList<T> 2``
+            apply ``Composition in NonEmptyList<T> 3``
+            apply ``Composition in NonEmptyList<T> 4``
+            apply ``Homomorphism in NonEmptyList<T>``
+            apply ``Interchange in NonEmptyList<T>``
+        }
+

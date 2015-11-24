@@ -220,3 +220,72 @@ module MonadLawsCheck =
             apply ``Associativity in FuncyList<T> 3``
             apply ``Associativity in FuncyList<T> 4``
         }
+
+    module MonadLawsInNonEmptyList =
+        let returnNEL x = NonEmptyList.Construct([x])
+
+        let ``Left identity in NonEmptyList<T> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f a ->
+            let f_ = Func<int, NonEmptyList<int>>(fun x -> NonEmptyList.Singleton(f.Invoke(x)) :> NonEmptyList<int>)
+            // return a >>= f ≡ f a
+            (returnNEL a).ComputeWith(f_) = f_.Invoke(a)
+        )
+        
+        let ``Left identity in NonEmptyList<T> 2`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f a ->
+            let f_ = Func<int, NonEmptyList<int>>(fun x -> NonEmptyList.ConsNEL(f.Invoke(x), NonEmptyList.Singleton(f.Invoke(x) * 2)) :> NonEmptyList<int>)
+            // return a >>= f ≡ f a
+            (returnNEL a).ComputeWith(f_) = f_.Invoke(a)
+        )
+
+        let ``Right identity in NonEmptyList<T>`` = Prop.forAll(Arb.nonEmptyList(Arb.int))(fun ls ->
+            let m = NonEmptyList.Construct(ls)
+            // m >>= return ≡ m
+            m.ComputeWith(Func<int, NonEmptyList<int>>(fun x -> returnNEL x)) = m
+        )
+
+        let arbFs = {
+          Gen = Gen.listOfLength 3 <| Arb.systemFunc(CoArb.int, Arb.int).Gen
+          Shrinker = Shrink.shrinkList <| Arb.systemFunc(CoArb.int, Arb.int).Shrinker
+          PrettyPrinter = Pretty.prettyList
+        }
+
+        let ``Associativity in NonEmptyList<T> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmptyList(Arb.int))(fun f1 f2 g ls ->
+            let m = NonEmptyList.Construct(ls)
+            let f_ = Func<int, NonEmptyList<int>>(fun x -> NonEmptyList.ConsNEL(f1.Invoke(x), NonEmptyList.Singleton(f2.Invoke(x))) :> NonEmptyList<int>)
+            let g_ = Func<int, NonEmptyList<int>>(fun x -> NonEmptyList.Singleton(g.Invoke(x)) :> NonEmptyList<int>)
+            // (m >>= f) >>= g ≡ m >>= (\x -> f x >>= g)
+            m.ComputeWith(f_).ComputeWith(g_) = m.ComputeWith(fun x -> f_.Invoke(x).ComputeWith(g_))
+        )
+
+        let ``Associativity in NonEmptyList<T> 2`` = Prop.forAll(Arb.nonEmptyList(Arb.systemFunc(CoArb.int, Arb.int)), Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun fs g1 g2 a ->
+            let m = NonEmptyList.Singleton(a)
+            let f_ = Func<int, NonEmptyList<int>>(fun x -> NonEmptyList.Construct(List.map (fun (f: Func<int, int>) -> f.Invoke(x)) fs))
+            let g_ = Func<int, NonEmptyList<int>>(fun x -> NonEmptyList.ConsNEL(g1.Invoke(x), NonEmptyList.Singleton(g2.Invoke(x))) :> NonEmptyList<int>)
+            // (m >>= f) >>= g ≡ m >>= (\x -> f x >>= g)
+            m.ComputeWith(f_).ComputeWith(g_) = m.ComputeWith(fun x -> f_.Invoke(x).ComputeWith(g_))
+        )
+
+        let ``Associativity in NonEmptyList<T> 3`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmptyList(Arb.systemFunc(CoArb.int, Arb.int)), Arb.int, Arb.int)(fun f gs i j ->
+            let m = NonEmptyList.ConsNEL(i, NonEmptyList.Singleton(j))
+            let f_ = Func<int, NonEmptyList<int>>(fun x -> NonEmptyList.Singleton(f.Invoke(x)) :> NonEmptyList<int>)
+            let g_ = Func<int, NonEmptyList<int>>(fun x -> NonEmptyList.Construct(List.map (fun (g: Func<int, int>) -> g.Invoke(x)) gs))
+            // (m >>= f) >>= g ≡ m >>= (\x -> f x >>= g)
+            m.ComputeWith(f_).ComputeWith(g_) = m.ComputeWith(fun x -> f_.Invoke(x).ComputeWith(g_))
+        )
+
+        let ``Associativity in NonEmptyList<T> 4`` = Prop.forAll(arbFs, arbFs, Arb.nonEmptyList(Arb.int))(fun fs gs ls ->
+            let m = NonEmptyList.Construct(ls)
+            let f_ = Func<int, NonEmptyList<int>>(fun x -> NonEmptyList.Construct(List.map (fun (f: Func<int, int>) -> f.Invoke(x)) fs))
+            let g_ = Func<int, NonEmptyList<int>>(fun x -> NonEmptyList.Construct(List.map (fun (g: Func<int, int>) -> g.Invoke(x)) gs))
+            // (m >>= f) >>= g ≡ m >>= (\x -> f x >>= g)
+            m.ComputeWith(f_).ComputeWith(g_) = m.ComputeWith(fun x -> f_.Invoke(x).ComputeWith(g_))
+        )
+
+        let ``Monad laws`` = property {
+            apply ``Left identity in NonEmptyList<T> 1``
+            apply ``Left identity in NonEmptyList<T> 2``
+            apply ``Right identity in NonEmptyList<T>``
+            apply ``Associativity in NonEmptyList<T> 1``
+            apply ``Associativity in NonEmptyList<T> 2``
+            apply ``Associativity in NonEmptyList<T> 3``
+            apply ``Associativity in NonEmptyList<T> 4``
+        }
