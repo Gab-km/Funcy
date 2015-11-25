@@ -38,6 +38,11 @@ namespace Funcy
         [Obsolete("This method is deprecated. Use FMap method.")]
         IComputable<TReturn> IComputable<TRight>.Compute<TReturn>(Func<TRight, TReturn> f)
         {
+            return this.Compute<TReturn>(f);
+        }
+        [Obsolete("This method is deprecated. Use FMap method.")]
+        public Either<TLeft, TReturn> Compute<TReturn>(Func<TRight, TReturn> f)
+        {
             return this.FMap<TReturn>(f);
         }
 
@@ -85,7 +90,7 @@ namespace Funcy
         {
             return this.Point(value);
         }
-        Either<TLeft, TRight> Point(TRight value)
+        public Either<TLeft, TRight> Point(TRight value)
         {
             return Either<TLeft, TRight>.Right(value);
         }

@@ -140,6 +140,11 @@ namespace Funcy
         [Obsolete("This method is deprecated. Use FMap method.")]
         IComputable<TReturn> IComputable<T>.Compute<TReturn>(Func<T, TReturn> f)
         {
+            return this.Compute<TReturn>(f);
+        }
+        [Obsolete("This method is deprecated. Use FMap method.")]
+        public FuncyList<TReturn> Compute<TReturn>(Func<T, TReturn> f)
+        {
             return this.FMap<TReturn>(f);
         }
 

@@ -3,5 +3,8 @@ bin/
 packages/
 *.suo
 
+# for FSharpLint configurations
+Settings.FSharpLint
+
 # Nuget Packages
 *.nupkg

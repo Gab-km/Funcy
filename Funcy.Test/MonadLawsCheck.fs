@@ -26,13 +26,13 @@ module MonadLawsCheck =
         let ``Right identity in Maybe<T> 1`` = Prop.forAll(Arb.int)(fun i ->
             let m = Maybe.Some(i)
             // m >>= return ≡ m
-            m.ComputeWith(Func<int, Maybe<int>>(returnMaybe)) = (m :> Maybe<int>)
+            m.ComputeWith(Func<int, Maybe<int>>(fun x -> returnMaybe x)) = (m :> Maybe<int>)
         )
 
         let ``Right identity in Maybe<T> 2`` = Prop.forAll(Arb.int)(fun _ ->
             let m = Maybe.None()
             // m >>= return ≡ m
-            m.ComputeWith(Func<int, Maybe<int>>(returnMaybe)) = (m :> Maybe<int>)
+            m.ComputeWith(Func<int, Maybe<int>>(fun x -> returnMaybe x)) = (m :> Maybe<int>)
         )
 
         let ``Associativity in Maybe<T> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g i ->
@@ -97,13 +97,13 @@ module MonadLawsCheck =
         let ``Right identity in Either<TLeft, TRight> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f i ->
             let m = Either<exn, int>.Right(i)
             // m >>= return ≡ m
-            m.ComputeWith(Func<int, Either<exn, int>>(returnEither)) = (m :> Either<exn, int>)
+            m.ComputeWith(Func<int, Either<exn, int>>(fun x -> returnEither x)) = (m :> Either<exn, int>)
         )
 
         let ``Right identity in Either<TLeft, TRight> 2`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.string.NonNull)(fun f s ->
             let m = Either<exn, int>.Left(exn(s))
             // m >>= return ≡ m
-            m.ComputeWith(Func<int, Either<exn, int>>(returnEither)) = (m :> Either<exn, int>)
+            m.ComputeWith(Func<int, Either<exn, int>>(fun x -> returnEither x)) = (m :> Either<exn, int>)
         )
 
         let ``Associativity in Either<TLeft, TRight> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g i ->
@@ -169,13 +169,13 @@ module MonadLawsCheck =
         let ``Right identity in FuncyList<T> 1`` = Prop.forAll(Arb.array(Arb.int).NonNull)(fun a ->
             let m = FuncyList.Construct(a)
             // m >>= return ≡ m
-            m.ComputeWith(Func<int, FuncyList<int>>(returnFList)) = m
+            m.ComputeWith(Func<int, FuncyList<int>>(fun x -> returnFList x)) = m
         )
 
         let ``Right identity in FuncyList<T> 2`` = Prop.forAll(Arb.int)(fun _ ->
             let m = FuncyList.Nil()
             // m >>= return ≡ m
-            m.ComputeWith(Func<int, FuncyList<int>>(returnFList)) = (m :> FuncyList<int>)
+            m.ComputeWith(Func<int, FuncyList<int>>(fun x -> returnFList x)) = (m :> FuncyList<int>)
         )
 
         let ``Associativity in FuncyList<T> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.array(Arb.int).NonNull)(fun f g a ->
@@ -239,7 +239,7 @@ module MonadLawsCheck =
         let ``Right identity in NonEmptyList<T>`` = Prop.forAll(Arb.nonEmptyList(Arb.int))(fun ls ->
             let m = NonEmptyList.Construct(ls)
             // m >>= return ≡ m
-            m.ComputeWith(Func<int, NonEmptyList<int>>(returnNEL)) = m
+            m.ComputeWith(Func<int, NonEmptyList<int>>(fun x -> returnNEL x)) = m
         )
 
         let arbFs = {
