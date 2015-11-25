@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Funcy
 {
-    public abstract class Either<TLeft, TRight> : IStructuralEquatable, IComputable<TRight>, IApplicative<TRight>, IFunctor<TRight>
+    public abstract class Either<TLeft, TRight> : IStructuralEquatable, IComputable<TRight>
     {
         public static Left<TLeft, TRight> Left(TLeft left)
         {
@@ -32,14 +32,14 @@ namespace Funcy
         }
         
         public abstract bool IsRight { get; }
-        
+
         public abstract bool IsLeft { get; }
 
+        [Obsolete("This method is deprecated. Use FMap method.")]
         IComputable<TReturn> IComputable<TRight>.Compute<TReturn>(Func<TRight, TReturn> f)
         {
-            return this.Compute(f);
+            return this.FMap<TReturn>(f);
         }
-        public abstract Either<TLeft, TReturn> Compute<TReturn>(Func<TRight, TReturn> f);
 
         IComputable<TReturn> IComputable<TRight>.ComputeWith<TReturn>(Func<TRight, IComputable<TReturn>> f)
         {
@@ -51,7 +51,17 @@ namespace Funcy
         {
             return this.Apply<TReturn>((Either<TLeft, Func<TRight, TReturn>>)f);
         }
-        public abstract Either<TLeft, TReturn> Apply<TReturn>(Either<TLeft, Func<TRight, TReturn>> f);
+        public Either<TLeft, TReturn> Apply<TReturn>(Either<TLeft, Func<TRight, TReturn>> f)
+        {
+            if (f.IsRight)
+            {
+                return this.FMap<TReturn>(f.ToRight().Value);
+            }
+            else
+            {
+                return Either<TLeft, TReturn>.Left(f.ToLeft().Value);
+            }
+        }
 
         IApplicative<TRight> IApplicative<TRight>.ApplyLeft<TReturn>(IApplicative<TReturn> other)
         {
@@ -69,6 +79,15 @@ namespace Funcy
         public Either<TLeft, TReturn> ApplyRight<TReturn>(Either<TLeft, TReturn> other)
         {
             return other;
+        }
+
+        IApplicative<TRight> IApplicative<TRight>.Point(TRight value)
+        {
+            return this.Point(value);
+        }
+        Either<TLeft, TRight> Point(TRight value)
+        {
+            return Either<TLeft, TRight>.Right(value);
         }
 
         bool System.Collections.IStructuralEquatable.Equals(object other, System.Collections.IEqualityComparer comparer)
@@ -106,11 +125,6 @@ namespace Funcy
         public override bool IsRight { get { return false; } }
 
         public override bool IsLeft { get { return !this.IsRight; } }
-        
-        public override Either<TLeft, TReturn> Compute<TReturn>(Func<TRight, TReturn> f)
-        {
-            return Either<TLeft, TReturn>.Left(this.value);
-        }
 
         public override Either<TLeft, TReturn> ComputeWith<TReturn>(Func<TRight, Either<TLeft, TReturn>> f)
         {
@@ -120,11 +134,6 @@ namespace Funcy
         public TLeft Extract()
         {
             return this.value;
-        }
-
-        public override Either<TLeft, TReturn> Apply<TReturn>(Either<TLeft, Func<TRight, TReturn>> f)
-        {
-            return Either<TLeft, TReturn>.Left(this.value);
         }
 
         public override bool Equals(object other, System.Collections.IEqualityComparer comparer)
@@ -173,11 +182,6 @@ namespace Funcy
         public override bool IsRight { get { return true; } }
         public override bool IsLeft { get { return !this.IsRight; } }
 
-        public override Either<TLeft, TReturn> Compute<TReturn>(Func<TRight, TReturn> f)
-        {
-            return Either<TLeft, TReturn>.Right(f(this.value));
-        }
-
         public override Either<TLeft, TReturn> ComputeWith<TReturn>(Func<TRight, Either<TLeft, TReturn>> f)
         {
             return f(this.value);
@@ -186,18 +190,6 @@ namespace Funcy
         public TRight Extract()
         {
             return this.value;
-        }
-
-        public override Either<TLeft, TReturn> Apply<TReturn>(Either<TLeft, Func<TRight, TReturn>> f)
-        {
-            if (f.IsRight)
-            {
-                return Either<TLeft, TReturn>.Right(f.ToRight().Value(this.value));
-            }
-            else
-            {
-                return Either<TLeft, TReturn>.Left(f.ToLeft().Value);
-            }
         }
 
         public override bool Equals(object other, System.Collections.IEqualityComparer comparer)

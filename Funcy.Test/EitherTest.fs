@@ -1,5 +1,4 @@
-﻿#nowarn "67"
-namespace Funcy.Test
+﻿namespace Funcy.Test
 
 open System
 open Funcy
@@ -28,20 +27,13 @@ module EitherTest =
         let right = Either<exn, string>.Right("hoge")
         do! assertPred <| not right.IsLeft
     }
-    let ``When Right<TLeft, TRight> as Either<TLeft, TRight> then IsRight should return true`` = test {
-        let right = Either<exn, float32>.Right(-1.0f) :> Either<exn, float32>
-        do! assertPred right.IsRight
-    }
-    let ``When Right<TLeft, TRight> as Either<TLeft, TRight> then IsLeft should return false`` = test {
-        let right = Either<exn, obj>.Right(obj()) :> Either<exn, obj>
-        do! assertPred <| not right.IsLeft
-    }
-    let ``When Right<TLeft, TRight> as Either<TLeft, TRight> then ToRight should return IRight<TLeft, TRight> instance`` = test {
+    let ``Right<TLeft, TRight>.ToRight() should return Right<TLeft, TRight> instance`` = test {
         let right = Either<exn, int>.Right(-1) :> Either<exn, int>
-        do! assertPred (right.ToRight() :? Right<exn, int>)
+        let sut = right.ToRight()
+        do! assertPred sut.IsRight
     }
-    let ``When Right<TLeft, TRight> as Either<TLeft, TRight> then ToLeft should raise InvalidCastException`` = test {
-        let right = Either<exn, string>.Right("egg") :> Either<exn, string>
+    let ``Right<TLeft, TRight>.ToLeft() should raise InvalidCastException`` = test {
+        let right = Either<exn, string>.Right("egg")
         let! e = trap { right.ToLeft() |> ignore }
         do! assertEquals typeof<System.InvalidCastException> <| e.GetType()
     }
@@ -58,22 +50,15 @@ module EitherTest =
         let left = Either<exn, int>.Left(Exception("fuga"))
         do! assertPred left.IsLeft
     }
-    let ``When Left<TLeft, TRight> as Either<TLeft, TRight> Then IsRight should return false`` = test {
-        let left = Either<exn, int>.Left(Exception("fuga")) :> Either<exn, int>
-        do! assertPred <| not left.IsRight
-    }
-    let ``When Left<TLeft, TRight> as Either<TLeft, TRight> Then IsLeft should return true`` = test {
-        let left = Either<exn, int>.Left(Exception("fuga")) :> Either<exn, int>
-        do! assertPred left.IsLeft
-    }
-    let ``When Left<TLeft, TRight> as Either<TLeft, TRight> then ToRight should raise InvalidCastException`` = test {
-        let left = Either<exn, int list>.Left(Exception("Not List")) :> Either<exn, int list>
+    let ``Left<TLeft, TRight>.ToRight() should raise InvalidCastException`` = test {
+        let left = Either<exn, int list>.Left(Exception("Not List"))
         let! e = trap { left.ToRight() |> ignore }
         do! assertEquals typeof<System.InvalidCastException> <| e.GetType()
     }
-    let ``When Left<TLeft, TRight> as Either<TLeft, TRight> then ToLeft should return ILeft<TLeft, TRight> instance`` = test {
-        let left = Either<exn, bool>.Left(Exception("ToLeft")) :> Either<exn, bool>
-        do! assertPred (left.ToLeft() :? Left<exn, bool>)
+    let ``Left<TLeft, TRight>.ToLeft() should return Left<TLeft, TRight> instance`` = test {
+        let left = Either<exn, bool>.Left(Exception("ToLeft"))
+        let sut = left.ToLeft()
+        do! assertPred sut.IsLeft
     }
     let ``Right<TLeft, TRight> should have equality1`` = test {
         let right = Either<exn, string>.Right("seven")
@@ -124,4 +109,94 @@ module EitherTest =
         do! assertNotEquals right1 left1
         do! assertNotEquals right1 left3
         do! assertNotEquals right3 left1
+    }
+
+module EitherFunctorTest =
+    let ``fmap Right<exn, int> (int -> string) = Right<exn, string>`` = test {
+        let right = Either<exn, int>.Right(42)
+        let sut = right.FMap(Func<int, string>(fun x -> x.ToString()));
+        do! assertPred sut.IsRight
+        do! assertEquals sut <| (Either<exn, string>.Right("42") :> Either<exn, string>)
+    }
+
+    let ``fmap Right<exn, float> (float -> float) = Right<exn, float>`` = test {
+        let sut = Either<exn, float>.Right(-1.4142).FMap(Func<float, float>(fun f -> Math.Abs(f)))
+        do! assertPred sut.IsRight
+        do! assertPred (sut = (Either<exn, float>.Right(1.4142) :> Either<exn, float>))
+    }
+
+    let ``fmap Left<exn, string> (string -> int) = Left<exn, string>`` = test {
+        let err = Exception("forty-two")
+        let left = Either<exn, string>.Left(err)
+        let sut = left.FMap(Func<string, int>(fun s -> System.Int32.Parse(s)))
+        do! assertPred sut.IsLeft
+        do! assertEquals sut <| (Either<exn, int>.Left(err) :> Either<exn, int>)
+    }
+
+module EitherApplicativeTest =
+    let ``Apply: Either<exn, float> -> Either<exn, float -> string> -> Either<exn, string>`` = test {
+        let sut = Either<exn, float>.Right(3.14).Apply(
+                    Either<exn, Func<float, string>>.Right(Func<float, string>(fun f -> f.ToString())))
+        do! assertPred sut.IsRight
+        do! assertEquals "3.14" <| sut.ToRight().Value
+    }
+
+    let ``Right<exn, decimal -> bool> <*> Left<exn, decimal> = Left<exn, bool>`` = test {
+        let err = Exception("hoge")
+        let eitherX = Either<exn, decimal>.Left(err)
+        let eitherF = Either<exn, Func<decimal, bool>>.Right(Func<decimal, bool>(fun d -> d > 2.718m))
+        let sut = eitherX.Apply(eitherF)
+        do! assertPred sut.IsLeft
+        do! assertEquals err <| sut.ToLeft().Value
+    }
+
+    let ``Left<exn, string -> int> <*> Right<exn, string> = Left<exn, int>`` = test {
+        let err = Exception("fuga")
+        let eitherX = Either<exn, string>.Right("F#!F#!")
+        let eitherF = Either<exn, Func<string, int>>.Left(err)
+        let sut = eitherX.Apply(eitherF)
+        do! assertPred sut.IsLeft
+        do! assertEquals err <| sut.ToLeft().Value
+    }
+
+    let ``Right<exn, int> <* Right<exn, string> = Right<exn, int>`` = test {
+        let sut = Either<exn, int>.Right(4).ApplyLeft(Either<exn, string>.Right("fuga"))
+        do! assertPred sut.IsRight
+        do! assertEquals sut <| (Either<exn, int>.Right(4) :> Either<exn, int>)
+    }
+
+module EitherComputationTest =
+    let ``Right + Right should return Right value`` = test {
+        let eitherX = Either<exn, int>.Right(1)
+        let eitherY = Either<exn, int>.Right(2)
+        let sut = eitherX.ComputeWith(fun x ->
+                    eitherY.FMap(fun y ->
+                        x + y))
+        do! assertPred sut.IsRight
+        do! assertEquals 3 <| sut.ToRight().Value
+    }
+
+    let ``Right + Left should return Left value`` = test {
+        let eitherX = Either<exn, int>.Right(3)
+        let eitherY = Either<exn, int>.Left(Exception("fuga"))
+        let sut = eitherX.ComputeWith (fun x ->
+                    eitherY.FMap (fun y ->
+                        x + y))
+        do! assertPred <| sut.IsLeft
+    }
+
+    let ``Left + Right should return Left value`` = test {
+        let sut = Either<exn, int>.Left(Exception("bar")).ComputeWith (fun x ->
+                    Either<exn, int>.Right(4).FMap (fun y ->
+                        x + y))
+        do! assertPred <| sut.IsLeft
+    }
+
+    let ``Left + Left should return Left value`` = test {
+        let eitherX = Either<exn, int>.Left(Exception("exn1"))
+        let eitherY = Either<exn, int>.Left(Exception("exn2"))
+        let sut = eitherX.ComputeWith (fun x ->
+                    eitherY.FMap (fun y ->
+                        x + y))
+        do! assertPred <| sut.IsLeft
     }

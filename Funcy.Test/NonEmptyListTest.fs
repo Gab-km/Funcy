@@ -29,7 +29,7 @@ module NonEmptyListTest =
     }
     let ``NonEmptyList<int>.Construct({1, 2, 3}) = ConsNEL<int>(1, ConsNEL<int>(2, Singleton<int>(3)))`` = test {
         let nel = NonEmptyList.Construct([1; 2; 3])
-        do! assertEquals typeof<ConsNEL<int>> <| nel.GetType()
+        do! assertPred nel.IsConsNEL
         do! assertEquals nel <| (NonEmptyList.ConsNEL(1, NonEmptyList.ConsNEL(2, NonEmptyList.Singleton(3))) :> NonEmptyList<int>)
         do! assertNotEquals nel <| (NonEmptyList.ConsNEL(1, NonEmptyList.ConsNEL(2, NonEmptyList.Singleton(4))) :> NonEmptyList<int>)
         do! assertNotEquals nel <| (NonEmptyList.ConsNEL(1, NonEmptyList.ConsNEL(4, NonEmptyList.Singleton(3))) :> NonEmptyList<int>)
@@ -164,20 +164,20 @@ module NonEmptyListFunctorTest =
     let ``fmap NonEmptyList<int> (int -> int) = NonEmptyList<int>`` = test {
         let nel = NonEmptyList.Construct([1; 2; 3])
         let sut = nel.FMap(Func<int, int>(fun x -> x * 4))
-        do! assertEquals typeof<ConsNEL<int>> <| sut.GetType()
+        do! assertPred sut.IsConsNEL
         do! assertEquals sut <| NonEmptyList.Construct([4; 8; 12])
     }
     
     let ``fmap NonEmptyList<decimal> (decimal -> string) = NonEmptyList<string>`` = test {
         let sut = NonEmptyList.Construct([2.718m; 3.14m]).FMap(Func<decimal, string>(fun d -> d.ToString()))
-        do! assertEquals typeof<ConsNEL<string>> <| sut.GetType()
+        do! assertPred sut.IsConsNEL
         do! assertEquals sut <| NonEmptyList.Construct(["2.718"; "3.14"])
     }
 
     let ``fmap Singleton<byte []> (byte [] -> byte) = byte) = Singleton<byte>`` = test {
         let singleton = NonEmptyList.Singleton([|0xCAuy; 0xFEuy; 0xBAuy;  0xBEuy|])
-        let sut = singleton.FMap(Func<byte [], byte>(fun arr -> Array.max arr))
-        do! assertEquals typeof<Singleton<byte>> <| sut.GetType()
+        let sut = singleton.FMap(Func<byte [], byte>(Array.max))
+        do! assertPred sut.IsSingleton
         do! assertEquals sut <| (NonEmptyList.Singleton(0xFEuy) :> NonEmptyList<byte>)
     }
     
@@ -194,7 +194,6 @@ module NonEmptyListApplicativeTest =
                             Func<int, int>(fun x -> x / 3)
                         ])
         let sut = flistX.Apply(flistF)
-        do! assertEquals typeof<ConsNEL<int>> <| sut.GetType()
         do! assertPred sut.IsConsNEL
         let expected = NonEmptyList.Construct([4; 5; 6; 3; 6; 9; 0; 0; 1])
         do! assertEquals expected sut
@@ -209,7 +208,6 @@ module NonEmptyListApplicativeTest =
                             Func<DateTime, string>(fun d3 -> d3.ToString("yyyyMMdd"))
                         ])
         let sut = flistX.Apply(flistF)
-        do! assertEquals typeof<ConsNEL<string>> <| sut.GetType()
         do! assertPred sut.IsConsNEL
         let expected = NonEmptyList.Construct
                         ([
@@ -224,7 +222,6 @@ module NonEmptyListApplicativeTest =
         let flistX = NonEmptyList.Singleton(2.718)
         let flistF = NonEmptyList.ConsNEL(Func<float, bool>(fun f -> f > 3.14), NonEmptyList.Singleton(Func<float, bool>(fun f -> f < 3.14)))
         let sut = flistX.Apply(flistF)
-        do! assertEquals typeof<ConsNEL<bool>> <| sut.GetType()
         do! assertPred sut.IsConsNEL
         let expected = NonEmptyList.Construct([false; true])
         do! assertEquals expected sut
@@ -234,7 +231,6 @@ module NonEmptyListApplicativeTest =
         let flistX = NonEmptyList.ConsNEL("hoge", NonEmptyList.Singleton("bar"))
         let flistF = NonEmptyList.Singleton(Func<string, int>(fun s -> s.Length))
         let sut = flistX.Apply(flistF)
-        do! assertEquals typeof<ConsNEL<int>> <| sut.GetType()
         do! assertPred sut.IsConsNEL
         let expected = NonEmptyList.Construct([4; 3])
         do! assertEquals expected sut
@@ -244,7 +240,6 @@ module NonEmptyListApplicativeTest =
         let flistX = NonEmptyList.Singleton(10)
         let flistF = NonEmptyList.Singleton(Func<int, float>(fun i -> float(i)))
         let sut = flistX.Apply(flistF)
-        do! assertEquals typeof<Singleton<float>> <| sut.GetType()
         do! assertPred sut.IsSingleton
         let expected = NonEmptyList.Construct([10.0])
         do! assertEquals expected sut
@@ -252,25 +247,25 @@ module NonEmptyListApplicativeTest =
     
     let ``ConsNEL<int> <* ConsNEL<string> = ConsNEL<int>`` = test {
         let sut = NonEmptyList.Construct([1; 1; 2; 3]).ApplyLeft(NonEmptyList.Construct(["hoge"; "fuga"; "bar"]))
-        do! assertEquals typeof<ConsNEL<int>> <| sut.GetType()
+        do! assertPred sut.IsConsNEL
         do! assertEquals sut <| NonEmptyList.Construct([1; 1; 2; 3])
     }
     
     let ``ConsNEL<float> *> ConsNEL<decimal> = ConsNEL<decimal>`` = test {
         let sut = NonEmptyList.Construct([3.14; 2.718]).ApplyRight(NonEmptyList.Construct([2.718m; 3.14m]))
-        do! assertEquals typeof<ConsNEL<decimal>> <| sut.GetType()
+        do! assertPred sut.IsConsNEL
         do! assertEquals sut <| NonEmptyList.Construct([2.718m; 3.14m])
     }
     
     let ``Singleton<bool> <* ConsNEL<long> = Singleton<bool>`` = test {
         let sut = NonEmptyList.Singleton(true).ApplyLeft(NonEmptyList.ConsNEL(33L, NonEmptyList.Singleton(4L)))
-        do! assertEquals typeof<Singleton<bool>> <| sut.GetType()
+        do! assertPred sut.IsSingleton
         do! assertEquals sut <| (NonEmptyList.Singleton(true) :> NonEmptyList<bool>)
     }
     
     let ``Singleton<string> *> ConsNEL<byte> = ConsNEL<byte>`` = test {
         let sut = NonEmptyList.Singleton("CAFE").ApplyRight(NonEmptyList.Construct([0xCAuy; 0xFEuy]))
-        do! assertEquals typeof<ConsNEL<byte>> <| sut.GetType()
+        do! assertPred sut.IsConsNEL
         do! assertEquals sut <| (NonEmptyList.ConsNEL(0xCAuy, NonEmptyList.Singleton(0xFEuy)) :> NonEmptyList<byte>)
     }
 
@@ -282,13 +277,13 @@ module NonEmptyListApplicativeTest =
         let sut = NonEmptyList.Construct([3; 4; 10]).Apply(NonEmptyList.Singleton(5).FMap(!> add.Curry()))
         do! assertPred sut.IsConsNEL
         let expected = NonEmptyList.Construct([8; 9; 15])
-        do! assertEquals expected <| sut
-    }    
+        do! assertEquals expected sut
+    }
 
     let ``ConsNEL(+, *, -) <*> ConsNEL(5, 2) = ConsNEL(+ 5, + 2, * 5, * 2, - 5, - 2)`` = test {
-        let add = Func<int, int, int>(fun x y -> x + y)
-        let mul = Func<int, int, int>(fun x y -> x * y)
-        let sub = Func<int, int, int>(fun x y -> x - y)
+        let add = Func<int, int, int>((+))
+        let mul = Func<int, int, int>((*))
+        let sub = Func<int, int, int>((-))
         let flistOP = NonEmptyList.Construct([!> add.Curry(); !> mul.Curry(); !> sub.Curry()])
         let flistX = NonEmptyList.ConsNEL(5, NonEmptyList.Singleton(2))
         let sut = flistX.Apply(flistOP)
@@ -304,7 +299,7 @@ module NonEmptyListComputationTest =
         let sut = NonEmptyList.Construct([0; 10]).ComputeWith (fun x ->
                     NonEmptyList.Construct([2; 3]).FMap (fun y ->
                         x + y))
-        do! assertEquals typeof<ConsNEL<int>> <| sut.GetType()
+        do! assertPred sut.IsConsNEL
         let expected = NonEmptyList.Construct([2; 3; 12; 13])
         do! assertEquals expected sut
     }
@@ -313,7 +308,7 @@ module NonEmptyListComputationTest =
         let sut = NonEmptyList.Construct([0; 1]).ComputeWith (fun x ->
                     NonEmptyList.Construct([2; 4]).ComputeWith (fun y ->
                         returnNEL (x + y)))
-        do! assertEquals typeof<ConsNEL<int>> <| sut.GetType()
+        do! assertPred sut.IsConsNEL
         let expected = NonEmptyList.Construct([2; 4; 3; 5])
         do! assertEquals expected sut
     }
@@ -322,7 +317,7 @@ module NonEmptyListComputationTest =
         let consNEL = NonEmptyList.ConsNEL(1, NonEmptyList.Singleton(2))
         let singleton = NonEmptyList.Singleton(3)
         let sut = consNEL.ComputeWith(fun x -> singleton.FMap(fun y -> x + y))
-        do! assertEquals typeof<ConsNEL<int>> <| sut.GetType()
+        do! assertPred sut.IsConsNEL
         let expected = NonEmptyList.Construct([4; 5])
         do! assertEquals expected sut
     }
@@ -331,7 +326,7 @@ module NonEmptyListComputationTest =
         let singleton = NonEmptyList.Singleton(100)
         let consNEL = NonEmptyList.Construct([2; 3])
         let sut = singleton.ComputeWith(fun x -> consNEL.FMap(fun y -> x + y))
-        do! assertEquals typeof<ConsNEL<int>> <| sut.GetType()
+        do! assertPred sut.IsConsNEL
         let expected = NonEmptyList.Construct([102; 103])
         do! assertEquals expected sut
     }
@@ -340,7 +335,7 @@ module NonEmptyListComputationTest =
         let singleton1 = NonEmptyList.Singleton(33)
         let singleton2 = NonEmptyList.Singleton(4)
         let sut = singleton1.ComputeWith(fun x -> singleton2.FMap(fun y -> x + y))
-        do! assertEquals typeof<Singleton<int>> <| sut.GetType()
+        do! assertPred sut.IsSingleton
         let expected = NonEmptyList.Singleton(37) :> NonEmptyList<int>
         do! assertEquals expected sut
     }

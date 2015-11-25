@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Funcy
 {
-    public abstract class NonEmptyList<T> : IStructuralEquatable, IStructuralComparable, IEnumerable<T>, IComputable<T>, IApplicative<T>, IFunctor<T>
+    public abstract class NonEmptyList<T> : IStructuralEquatable, IStructuralComparable, IEnumerable<T>, IComputable<T>
     {
         public static ConsNEL<T> ConsNEL(T head, NonEmptyList<T> tail)
         {
@@ -131,6 +131,16 @@ namespace Funcy
             return other;
         }
 
+        IApplicative<T> IApplicative<T>.Point(T value)
+        {
+            return this.Point(value);
+        }
+        public NonEmptyList<T> Point(T value)
+        {
+            return NonEmptyList<T>.Singleton(value);
+        }
+
+        [Obsolete("This method is deprecated. Use FMap method.")]
         IComputable<TReturn> IComputable<T>.Compute<TReturn>(Func<T, TReturn> f)
         {
             return this.FMap<TReturn>(f);
