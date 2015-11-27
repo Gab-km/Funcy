@@ -85,3 +85,17 @@ module MaybeApplicativeTest =
         let sut = maybe5.Apply(maybeAdd)
         do! assertEquals 8 <| Maybe.Some(3).Apply(sut).ToSome().Value
     }
+
+    let ``Some<T>.Point returns Some<T>`` = test {
+        let some = Maybe.Some("ham")
+        let actual = some.Point("egg")
+        do! assertEquals typeof<Some<string>> <| actual.GetType()
+        do! assertEquals "egg" <| actual.ToSome().Value
+    }
+
+    let ``None<T>.Point returns Some<T>`` = test {
+        let none = Maybe<int>.None()
+        let actual = none.Point(42)
+        do! assertEquals typeof<Some<int>> <| actual.GetType()
+        do! assertEquals 42 <| actual.ToSome().Value
+    }

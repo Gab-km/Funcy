@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Funcy
 {
-    public abstract class Maybe<T> : IStructuralEquatable, IStructuralComparable, IComputable<T>, IApplicative<T>, IFunctor<T>
+    public abstract class Maybe<T> : IStructuralEquatable, IStructuralComparable, IComputable<T>
     {
         public static Some<T> Some(T value)
         {
@@ -33,11 +33,16 @@ namespace Funcy
         public abstract bool IsSome { get; }
         public abstract bool IsNone { get; }
 
+        [Obsolete("This method is deprecated. Use FMap method.")]
         IComputable<TReturn> IComputable<T>.Compute<TReturn>(Func<T, TReturn> f)
         {
-            return this.Compute(f);
+            return this.Compute<TReturn>(f);
         }
-        public abstract Maybe<TReturn> Compute<TReturn>(Func<T, TReturn> f);
+        [Obsolete("This method is deprecated. Use FMap method.")]
+        public Maybe<TReturn> Compute<TReturn>(Func<T, TReturn> f)
+        {
+            return this.FMap<TReturn>(f);
+        }
 
         IComputable<TReturn> IComputable<T>.ComputeWith<TReturn>(Func<T, IComputable<TReturn>> f)
         {
@@ -49,7 +54,17 @@ namespace Funcy
         {
             return this.Apply<TReturn>((Maybe<Func<T, TReturn>>)f);
         }
-        public abstract Maybe<TReturn> Apply<TReturn>(Maybe<Func<T, TReturn>> f);
+        public Maybe<TReturn> Apply<TReturn>(Maybe<Func<T, TReturn>> f)
+        {
+            if (f.IsSome)
+            {
+                return this.FMap<TReturn>(f.ToSome().Value);
+            }
+            else
+            {
+                return Maybe<TReturn>.None();
+            }
+        }
 
         IApplicative<T> IApplicative<T>.ApplyLeft<TReturn>(IApplicative<TReturn> other)
         {
@@ -67,6 +82,15 @@ namespace Funcy
         public Maybe<TReturn> ApplyRight<TReturn>(Maybe<TReturn> other)
         {
             return other;
+        }
+
+        IApplicative<T> IApplicative<T>.Point(T value)
+        {
+            return this.Point(value);
+        }
+        public Maybe<T> Point(T value)
+        {
+            return Maybe<T>.Some(value);
         }
         
         bool System.Collections.IStructuralEquatable.Equals(object other, System.Collections.IEqualityComparer comparer)
@@ -111,11 +135,6 @@ namespace Funcy
 
         public override bool IsNone { get { return !this.IsSome; } }
 
-        public override Maybe<TReturn> Compute<TReturn>(Func<T, TReturn> f)
-        {
-            return Maybe<TReturn>.Some(f(this.value));
-        }
-
         public override Maybe<TReturn> ComputeWith<TReturn>(Func<T, Maybe<TReturn>> f)
         {
             return f(this.value);
@@ -124,18 +143,6 @@ namespace Funcy
         public T Extract()
         {
             return this.value;
-        }
-
-        public override Maybe<TReturn> Apply<TReturn>(Maybe<Func<T, TReturn>> f)
-        {
-            if (f.IsSome)
-            {
-                return Maybe<TReturn>.Some(f.ToSome().Value(this.value));
-            }
-            else
-            {
-                return Maybe<TReturn>.None();
-            }
         }
 
         public override bool Equals(object obj, System.Collections.IEqualityComparer comparer)
@@ -201,17 +208,7 @@ namespace Funcy
 
         public override bool IsNone { get { return !this.IsSome; } }
 
-        public override Maybe<TReturn> Compute<TReturn>(Func<T, TReturn> f)
-        {
-            return Maybe<TReturn>.None();
-        }
-
         public override Maybe<TReturn> ComputeWith<TReturn>(Func<T, Maybe<TReturn>> f)
-        {
-            return Maybe<TReturn>.None();
-        }
-
-        public override Maybe<TReturn> Apply<TReturn>(Maybe<Func<T, TReturn>> f)
         {
             return Maybe<TReturn>.None();
         }

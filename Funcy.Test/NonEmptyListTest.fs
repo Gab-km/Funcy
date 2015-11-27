@@ -296,6 +296,20 @@ module NonEmptyListApplicativeTest =
         let expected = NonEmptyList.Construct([5; 6; 7; 2; 3; 4; 0; 5; 10; 0; 2; 4; 5; 4; 3; 2; 1; 0])
         do! assertEquals expected <| target.Apply(sut)
     }
+
+    let ``Singleton<T>.Point returns Singleton<T>`` = test {
+        let singleton = NonEmptyList.Singleton(2.718)
+        let actual = singleton.Point(1.00)
+        do! assertEquals typeof<Singleton<float>> <| actual.GetType()
+        do! assertEquals 1.00 <| actual.ToSingleton().Value
+    }
+
+    let ``ConsNEL<T>.Point returns Singleton<T>`` = test {
+        let consNEL = NonEmptyList.ConsNEL("a", NonEmptyList.Singleton("b"))
+        let actual = consNEL.Point("c")
+        do! assertEquals typeof<Singleton<string>> <| actual.GetType()
+        do! assertEquals "c" <| actual.ToSingleton().Value
+    }
     
 module NonEmptyListComputationTest =
     let returnNEL x = NonEmptyList.Construct([x])

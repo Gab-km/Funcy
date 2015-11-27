@@ -110,3 +110,17 @@ module FuncyListApplicativeTest =
         let expected = FuncyList.Construct([|5; 6; 7; 2; 3; 4; 0; 5; 10; 0; 2; 4; 5; 4; 3; 2; 1; 0|])
         do! assertEquals expected <| target.Apply(sut)
     }
+
+    let ``Cons<T>.Point returns Cons<T>`` = test {
+        let cons = FuncyList.Cons("z", FuncyList.Nil())
+        let actual = cons.Point("a")
+        do! assertEquals typeof<Cons<string>> <| actual.GetType()
+        do! assertEquals "a" <| actual.ToCons().Head
+    }
+
+    let ``Nil<T>.Point returns Cons<T>`` = test {
+        let nil = FuncyList<decimal>.Nil()
+        let actual = nil.Point(3.14m)
+        do! assertEquals typeof<Cons<decimal>> <| actual.GetType()
+        do! assertEquals 3.14m <| actual.ToCons().Head
+    }

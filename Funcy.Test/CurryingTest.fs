@@ -273,7 +273,7 @@ module CurryingTest =
             let m13 = Maybe.Some(0.003m).FMap(!> m12.ToSome().Value)
             let m14 = Maybe.Some(0.0004m).FMap(!> m13.ToSome().Value)
             let m15 = Maybe.Some(" = ").FMap(!> m14.ToSome().Value)
-            let m16 = m15.Compute(fun f -> f.Invoke("9876543210.1234"))
+            let m16 = m15.FMap(fun f -> f.Invoke("9876543210.1234"))
             do! assertEquals "9876543210.1234 = 9876543210.1234" !result
         }
 

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Funcy
 {
-    public abstract class FuncyList<T> : IStructuralEquatable, IStructuralComparable, IEnumerable<T>, IComputable<T>, IApplicative<T>, IFunctor<T>
+    public abstract class FuncyList<T> : IStructuralEquatable, IStructuralComparable, IEnumerable<T>, IComputable<T>
     {
         public static Cons<T> Cons(T head, FuncyList<T> tail)
         {
@@ -79,7 +79,17 @@ namespace Funcy
         {
             return this.Apply<TReturn>((FuncyList<Func<T, TReturn>>)f);
         }
-        public abstract FuncyList<TReturn> Apply<TReturn>(FuncyList<Func<T, TReturn>> f);
+        public FuncyList<TReturn> Apply<TReturn>(FuncyList<Func<T, TReturn>> f)
+        {
+            if (f.IsCons)
+            {
+                return FuncyList<TReturn>.Construct(f.ToList().SelectMany(fCons => this.FMap(fCons)).ToArray());
+            }
+            else
+            {
+                return FuncyList<TReturn>.Nil();
+            }
+        }
 
         IApplicative<T> IApplicative<T>.ApplyLeft<TReturn>(IApplicative<TReturn> other)
         {
@@ -97,6 +107,15 @@ namespace Funcy
         public FuncyList<TReturn> ApplyRight<TReturn>(FuncyList<TReturn> other)
         {
             return other;
+        }
+
+        IApplicative<T> IApplicative<T>.Point(T value)
+        {
+            return this.Point(value);
+        }
+        public FuncyList<T> Point(T value)
+        {
+            return FuncyList<T>.Construct(value);
         }
 
         public IEnumerator<T> GetEnumerator()
@@ -118,11 +137,16 @@ namespace Funcy
             return this.GetEnumerator();
         }
 
+        [Obsolete("This method is deprecated. Use FMap method.")]
         IComputable<TReturn> IComputable<T>.Compute<TReturn>(Func<T, TReturn> f)
         {
-            return this.Compute(f);
+            return this.Compute<TReturn>(f);
         }
-        public abstract FuncyList<TReturn> Compute<TReturn>(Func<T, TReturn> f);
+        [Obsolete("This method is deprecated. Use FMap method.")]
+        public FuncyList<TReturn> Compute<TReturn>(Func<T, TReturn> f)
+        {
+            return this.FMap<TReturn>(f);
+        }
 
         IComputable<TReturn> IComputable<T>.ComputeWith<TReturn>(Func<T, IComputable<TReturn>> f)
         {
@@ -218,23 +242,6 @@ namespace Funcy
             return FuncyList<TReturn>.Cons(f(this.head), this.tail.FMap(f));
         }
 
-        public override FuncyList<TReturn> Apply<TReturn>(FuncyList<Func<T, TReturn>> f)
-        {
-            if (f.IsCons)
-            {
-                return FuncyList<TReturn>.Construct(f.ToList().SelectMany(fCons => this.FMap(fCons)).ToArray());
-            }
-            else
-            {
-                return FuncyList<TReturn>.Nil();
-            }
-        }
-
-        public override FuncyList<TReturn> Compute<TReturn>(Func<T, TReturn> f)
-        {
-            return FuncyList<TReturn>.Cons(f(this.head), this.tail.Compute(f));
-        }
-
         public override FuncyList<TReturn> ComputeWith<TReturn>(Func<T, FuncyList<TReturn>> f)
         {
             return FuncyList<TReturn>.Construct(this.SelectMany(h => f(h)).ToArray());
@@ -297,16 +304,6 @@ namespace Funcy
         }
 
         public override FuncyList<TReturn> FMap<TReturn>(Func<T, TReturn> f)
-        {
-            return FuncyList<TReturn>.Nil();
-        }
-
-        public override FuncyList<TReturn> Apply<TReturn>(FuncyList<Func<T, TReturn>> f)
-        {
-            return FuncyList<TReturn>.Nil();
-        }
-
-        public override FuncyList<TReturn> Compute<TReturn>(Func<T, TReturn> f)
         {
             return FuncyList<TReturn>.Nil();
         }
