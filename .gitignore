@@ -8,3 +8,6 @@ Settings.FSharpLint
 
 # Nuget Packages
 *.nupkg
+
+# Paket
+.paket/paket.exe
