@@ -5,7 +5,7 @@ branches:
     - gh-pages
 
 build_script:
-  - ps1: .\fbt.ps1 -Build
+  - ps: .\fbt.ps1 -Build
 
 test_script:
-  - ps1: .\fbt.ps1 -NoUpdate -Test
+  - ps: .\fbt.ps1 -NoUpdate -Test
