@@ -1,12 +1,11 @@
 version: 0.6.0.{build}
 
-environment:
-  EnableNugetPackageRestore: true
-
 branches:
   except:
     - gh-pages
 
-test_script:
-  - ps: .\packages\Persimmon.Console.1.0.0\tools\Persimmon.Console.exe .\Funcy.Test\bin\Debug\Funcy.Test.dll
+build_script:
+  - ps: .\fbt.ps1 -Build
 
+test_script:
+  - ps: .\fbt.ps1 -NoUpdate -Test
