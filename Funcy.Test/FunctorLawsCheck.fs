@@ -106,7 +106,7 @@ module FunctorLawsCheck =
         }
 
     module FunctorLawsInNonEmptyList =
-        let ``Identity in NonEmptyList<T>`` = Prop.forAll(Arb.nonEmptyList(Arb.int))(fun ls ->
+        let ``Identity in NonEmptyList<T>`` = Prop.forAll(Arb.nonEmpty(Arb.list Arb.int))(fun ls ->
             let nel = NonEmptyList.Construct(ls)
             // fmap id == id
             nel.FMap(funcId) = nel
@@ -124,7 +124,7 @@ module FunctorLawsCheck =
             singleton.FMap(funcId) = (singleton :> NonEmptyList<int>)
         )
 
-        let ``Composition in NonEmptyList<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmptyList(Arb.int))(fun f g ls ->
+        let ``Composition in NonEmptyList<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmpty(Arb.list Arb.int))(fun f g ls ->
             let nel = NonEmptyList.Construct(ls)
             // fmap (f . g) == fmap f . fmap g
             nel.FMap(Composition.Compose(g, f)) = nel.FMap(f).FMap(g)

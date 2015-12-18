@@ -245,7 +245,7 @@ module ApplicativeLawsCheck =
     module ApplicativeLawsInNonEmptyList =
         let pureNEL x = NonEmptyList.Construct([x])
         
-        let ``Identity in NonEmptyList<T>`` = Prop.forAll(Arb.nonEmptyList(Arb.int))(fun ls ->
+        let ``Identity in NonEmptyList<T>`` = Prop.forAll(Arb.nonEmpty(Arb.list Arb.int))(fun ls ->
             let v = NonEmptyList.Construct(ls)
             // pure id <*> v = v
             v.Apply(pureNEL funcId) = v
@@ -263,7 +263,7 @@ module ApplicativeLawsCheck =
             v.Apply(pureNEL funcId) = (v :> NonEmptyList<int>)
         )
 
-        let ``Composition in NonEmptyList<T> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmptyList(Arb.systemFunc(CoArb.int, Arb.int)), Arb.int, Arb.int)(fun f gs i j ->
+        let ``Composition in NonEmptyList<T> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmpty(Arb.list <| Arb.systemFunc(CoArb.int, Arb.int)), Arb.int, Arb.int)(fun f gs i j ->
             let u = NonEmptyList.Singleton(f)
             let v = NonEmptyList.Construct(gs)
             let w = NonEmptyList.ConsNEL(i, NonEmptyList.Singleton(j))
@@ -273,7 +273,7 @@ module ApplicativeLawsCheck =
             w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
         )
         
-        let ``Composition in NonEmptyList<T> 2`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmptyList(Arb.int))(fun f g h ls ->
+        let ``Composition in NonEmptyList<T> 2`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmpty(Arb.list Arb.int))(fun f g h ls ->
             let u = NonEmptyList.ConsNEL(f, NonEmptyList.Singleton(g))
             let v = NonEmptyList.Singleton(h)
             let w = NonEmptyList.Construct(ls)
@@ -283,7 +283,7 @@ module ApplicativeLawsCheck =
             w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
         )
 
-        let ``Composition in NonEmptyList<T> 3`` = Prop.forAll(Arb.nonEmptyList(Arb.systemFunc(CoArb.int, Arb.int)), Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun fs g h i ->
+        let ``Composition in NonEmptyList<T> 3`` = Prop.forAll(Arb.nonEmpty(Arb.list <| Arb.systemFunc(CoArb.int, Arb.int)), Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun fs g h i ->
             let u = NonEmptyList.Construct(fs)
             let v = NonEmptyList.ConsNEL(g, NonEmptyList.Singleton(h))
             let w = NonEmptyList.Singleton(i)

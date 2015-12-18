@@ -236,7 +236,7 @@ module MonadLawsCheck =
             (returnNEL a).ComputeWith(f_) = f_.Invoke(a)
         )
 
-        let ``Right identity in NonEmptyList<T>`` = Prop.forAll(Arb.nonEmptyList(Arb.int))(fun ls ->
+        let ``Right identity in NonEmptyList<T>`` = Prop.forAll(Arb.nonEmpty(Arb.list Arb.int))(fun ls ->
             let m = NonEmptyList.Construct(ls)
             // m >>= return ≡ m
             m.ComputeWith(Func<int, NonEmptyList<int>>(fun x -> returnNEL x)) = m
@@ -248,7 +248,7 @@ module MonadLawsCheck =
           PrettyPrinter = Pretty.prettyList
         }
 
-        let ``Associativity in NonEmptyList<T> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmptyList(Arb.int))(fun f1 f2 g ls ->
+        let ``Associativity in NonEmptyList<T> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmpty(Arb.list Arb.int))(fun f1 f2 g ls ->
             let m = NonEmptyList.Construct(ls)
             let f_ = Func<int, NonEmptyList<int>>(fun x -> NonEmptyList.ConsNEL(f1.Invoke(x), NonEmptyList.Singleton(f2.Invoke(x))) :> NonEmptyList<int>)
             let g_ = Func<int, NonEmptyList<int>>(fun x -> NonEmptyList.Singleton(g.Invoke(x)) :> NonEmptyList<int>)
@@ -256,7 +256,7 @@ module MonadLawsCheck =
             m.ComputeWith(f_).ComputeWith(g_) = m.ComputeWith(fun x -> f_.Invoke(x).ComputeWith(g_))
         )
 
-        let ``Associativity in NonEmptyList<T> 2`` = Prop.forAll(Arb.nonEmptyList(Arb.systemFunc(CoArb.int, Arb.int)), Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun fs g1 g2 a ->
+        let ``Associativity in NonEmptyList<T> 2`` = Prop.forAll(Arb.nonEmpty(Arb.list <| Arb.systemFunc(CoArb.int, Arb.int)), Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun fs g1 g2 a ->
             let m = NonEmptyList.Singleton(a)
             let f_ = Func<int, NonEmptyList<int>>(fun x -> NonEmptyList.Construct(List.map (fun (f: Func<int, int>) -> f.Invoke(x)) fs))
             let g_ = Func<int, NonEmptyList<int>>(fun x -> NonEmptyList.ConsNEL(g1.Invoke(x), NonEmptyList.Singleton(g2.Invoke(x))) :> NonEmptyList<int>)
@@ -264,7 +264,7 @@ module MonadLawsCheck =
             m.ComputeWith(f_).ComputeWith(g_) = m.ComputeWith(fun x -> f_.Invoke(x).ComputeWith(g_))
         )
 
-        let ``Associativity in NonEmptyList<T> 3`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmptyList(Arb.systemFunc(CoArb.int, Arb.int)), Arb.int, Arb.int)(fun f gs i j ->
+        let ``Associativity in NonEmptyList<T> 3`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmpty(Arb.list <| Arb.systemFunc(CoArb.int, Arb.int)), Arb.int, Arb.int)(fun f gs i j ->
             let m = NonEmptyList.ConsNEL(i, NonEmptyList.Singleton(j))
             let f_ = Func<int, NonEmptyList<int>>(fun x -> NonEmptyList.Singleton(f.Invoke(x)) :> NonEmptyList<int>)
             let g_ = Func<int, NonEmptyList<int>>(fun x -> NonEmptyList.Construct(List.map (fun (g: Func<int, int>) -> g.Invoke(x)) gs))
@@ -272,7 +272,7 @@ module MonadLawsCheck =
             m.ComputeWith(f_).ComputeWith(g_) = m.ComputeWith(fun x -> f_.Invoke(x).ComputeWith(g_))
         )
 
-        let ``Associativity in NonEmptyList<T> 4`` = Prop.forAll(arbFs, arbFs, Arb.nonEmptyList(Arb.int))(fun fs gs ls ->
+        let ``Associativity in NonEmptyList<T> 4`` = Prop.forAll(arbFs, arbFs, Arb.nonEmpty(Arb.list Arb.int))(fun fs gs ls ->
             let m = NonEmptyList.Construct(ls)
             let f_ = Func<int, NonEmptyList<int>>(fun x -> NonEmptyList.Construct(List.map (fun (f: Func<int, int>) -> f.Invoke(x)) fs))
             let g_ = Func<int, NonEmptyList<int>>(fun x -> NonEmptyList.Construct(List.map (fun (g: Func<int, int>) -> g.Invoke(x)) gs))
