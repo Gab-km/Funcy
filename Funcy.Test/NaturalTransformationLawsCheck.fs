@@ -47,7 +47,7 @@ module NaturalTransformationLawsCheck =
     // NonEmptyList
     module ToFuncyListForNonEmptyList =
 
-        let ``NonEmptyListNT.ToFuncyList is natural`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmptyList(Arb.int))(fun f a ->
+        let ``NonEmptyListNT.ToFuncyList is natural`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.list(Arb.int).NonEmpty)(fun f a ->
             let Fa = NonEmptyList.Construct(a)
             Fa.ToFuncyList().FMap(f) = Fa.FMap(f).ToFuncyList()
         )
@@ -58,7 +58,7 @@ module NaturalTransformationLawsCheck =
 
     module TakeForNonEmptyList =
 
-        let ``NonEmptyListNT.Take is natural`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmptyList(Arb.int), Arb.int)(fun f a l ->
+        let ``NonEmptyListNT.Take is natural`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.list(Arb.int).NonEmpty, Arb.int)(fun f a l ->
             let Fa = NonEmptyList.Construct(a)
             Fa.Take(l).FMap(f) = Fa.FMap(f).Take(l)
         )
@@ -69,7 +69,7 @@ module NaturalTransformationLawsCheck =
 
     module TakeFirstForNonEmptyList =
 
-        let ``NonEmptyListNT.TakeFirst is natural`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmptyList(Arb.int))(fun f a ->
+        let ``NonEmptyListNT.TakeFirst is natural`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.list(Arb.int).NonEmpty)(fun f a ->
             let Fa = NonEmptyList.Construct(a)
             f.Invoke((Fa.TakeFirst())) = Fa.FMap(f).TakeFirst()
         )
