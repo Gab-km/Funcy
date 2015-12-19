@@ -316,9 +316,9 @@ namespace Funcy
 
     public static class FuncyListNT
     {
-        public static FuncyList<T> Take<T>(this FuncyList<T> self, int length)
+        public static FuncyList<T> Take<T>(this FuncyList<T> self, ulong length)
         {
-            if (self.IsNil || length <= 0)
+            if (self.IsNil || length == 0)
             {
                 return FuncyList<T>.Nil();
             }

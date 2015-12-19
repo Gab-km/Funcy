@@ -24,7 +24,7 @@ module NaturalTransformationLawsCheck =
     // FuncyList
     module TakeForFuncyList =
 
-        let ``FuncyListNT.Take is natural`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.nonNull(Arb.array Arb.int), Arb.int)(fun f a l ->
+        let ``FuncyListNT.Take is natural`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.nonNull(Arb.array Arb.int), Arb.uint64)(fun f a l ->
             let Fa = FuncyList.Construct(a)
             Fa.Take(l).FMap(f) = Fa.FMap(f).Take(l)
         )
@@ -58,7 +58,7 @@ module NaturalTransformationLawsCheck =
 
     module TakeForNonEmptyList =
 
-        let ``NonEmptyListNT.Take is natural`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.list(Arb.int).NonEmpty, Arb.int)(fun f a l ->
+        let ``NonEmptyListNT.Take is natural`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.list(Arb.int).NonEmpty, Arb.uint64)(fun f a l ->
             let Fa = NonEmptyList.Construct(a)
             Fa.Take(l).FMap(f) = Fa.FMap(f).Take(l)
         )

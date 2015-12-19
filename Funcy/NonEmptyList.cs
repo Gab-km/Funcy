@@ -311,7 +311,7 @@ namespace Funcy
             return FuncyList<T>.Construct(self.ToArray());
         }
 
-        public static FuncyList<T> Take<T>(this NonEmptyList<T> self, int length)
+        public static FuncyList<T> Take<T>(this NonEmptyList<T> self, ulong length)
         {
             return NonEmptyListNT.ToFuncyList(self).Take(length);
         }
