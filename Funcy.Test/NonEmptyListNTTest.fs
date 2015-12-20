@@ -22,32 +22,32 @@ module NonEmptyListNTTest =
     }
 
     // Take
-    let ``NonEmptyListNT.Take(cons, 3UL) returns a value of type Cons`` = test {
+    let ``NonEmptyListNT.Take(cons, 3) returns a value of type Cons`` = test {
         let nel = NonEmptyList.Construct([| "my"; "name"; "is"; "NonEmptyList" |])
-        let sut = nel.Take(3UL)
+        let sut = nel.Take(3)
         do! assertEquals typeof<Cons<string>> <| sut.GetType()
     }
 
-    let ``NonEmptyListNT.Take(list, 3UL) takes first 3UL elements`` = test {
+    let ``NonEmptyListNT.Take(list, 3) takes first 3 elements`` = test {
         let nel = NonEmptyList.Construct([| "my"; "name"; "is"; "NonEmptyList" |])
-        let sut = nel.Take(3UL)
+        let sut = nel.Take(3)
         do! assertEquals sut <| FuncyList.Construct([| "my"; "name"; "is" |])
     }
-    let ``NonEmptyListNT.Take(list, 3UL) returns list.ToFuncyList() when the length of list is less than or equal to 3`` = test {
+    let ``NonEmptyListNT.Take(list, 3) returns list.ToFuncyList() when the length of list is less than or equal to 3`` = test {
         let nel = NonEmptyList.Construct([| "NonEmptyList" |])
-        let sut = nel.Take(3UL)
+        let sut = nel.Take(3)
         do! assertEquals sut <| nel.ToFuncyList()
     }
-    let ``NonEmptyListNT.Take(list, 0UL) returns Nil`` = test {
+    let ``NonEmptyListNT.Take(list, 0) returns Nil`` = test {
         let nel = NonEmptyList.Construct([| "NonEmptyList" |])
-        let sut = nel.Take(0UL)
+        let sut = nel.Take(0)
         do! assertEquals sut <| (FuncyList<string>.Nil() :> FuncyList<string>)
     }
     
     let ``NonEmptyListNT.Take commutes with Length function`` = test {
         let nel = NonEmptyList.Construct([| "my"; "name"; "is"; "NonEmptyList" |])
         let func = Func<string, int>(fun s -> s.Length)
-        do! assertEquals <|| (nel.Take(3UL).FMap(func), nel.FMap(func).Take(3UL))
+        do! assertEquals <|| (nel.Take(3).FMap(func), nel.FMap(func).Take(3))
     }
 
     // TakeFirst
