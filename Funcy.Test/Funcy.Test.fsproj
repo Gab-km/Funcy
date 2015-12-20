@@ -75,6 +75,7 @@
       <Paket>True</Paket>
     </Content>
     <Compile Include="NonEmptyListTest.fs" />
+    <Compile Include="NonEmptyListNTTest.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

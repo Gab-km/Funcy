@@ -303,4 +303,25 @@ namespace Funcy
             return NonEmptyList<TReturn>.Singleton(f(this.value));
         }
     }
+
+    public static class NonEmptyListNT
+    {
+        public static FuncyList<T> ToFuncyList<T>(this NonEmptyList<T> self)
+        {
+            return FuncyList<T>.Construct(self.ToArray());
+        }
+
+        public static FuncyList<T> Take<T>(this NonEmptyList<T> self, int length)
+        {
+            return NonEmptyListNT.ToFuncyList(self).Take(length);
+        }
+
+        public static T TakeFirst<T>(this NonEmptyList<T> self)
+        {
+            var enumerator = self.GetEnumerator();
+            enumerator.MoveNext();
+
+            return enumerator.Current;
+        }
+    }
 }
