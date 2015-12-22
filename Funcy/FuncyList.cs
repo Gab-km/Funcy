@@ -318,24 +318,22 @@ namespace Funcy
     {
         public static Maybe<T> ElementAt<T>(this FuncyList<T> source, int index)
         {
-            if (index < 0)
-            {
-                return Maybe<T>.None();
-            }
-
-            if (index == 0)
-            {
-                return FuncyListNT.TakeFirst<T>(source);
-            }
-
             if (source is Nil<T>)
             {
                 return Maybe<T>.None();
             }
 
-            Cons<T> cons = source.ToCons();
+            if (index < 0)
+            {
+                return Maybe<T>.None();
+            }
 
-            return FuncyListNT.ElementAt<T>(cons.Tail, index - 1);
+            if (index >= source.Count())
+            {
+                return Maybe<T>.None();
+            }
+
+            return Maybe<T>.Some(((IEnumerable<T>)source).ElementAt(index));
         }
 
         public static FuncyList<T> Take<T>(this FuncyList<T> self, int length)
