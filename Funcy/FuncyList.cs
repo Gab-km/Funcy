@@ -23,19 +23,14 @@ namespace Funcy
 
         public static FuncyList<T> Construct(params T[] args)
         {
-            return FuncyList<T>.Construct0(args, 0, args.Length);
-        }
+            FuncyList<T> result = FuncyList<T>.Nil();
 
-        private static FuncyList<T> Construct0(T[] args, int head, int length)
-        {
-            if (length == 0)
+            for (int i = args.Length - 1; i >= 0; i--)
             {
-                return FuncyList<T>.Nil();
+                result = FuncyList<T>.Cons(args[i], result);
             }
-            else
-            {
-                return FuncyList<T>.Cons(args[head], FuncyList<T>.Construct0(args, head + 1, length - 1));
-            }
+
+            return result;
         }
 
         public Cons<T> ToCons()
@@ -336,17 +331,14 @@ namespace Funcy
             return Maybe<T>.Some(((IEnumerable<T>)source).ElementAt(index));
         }
 
-        public static FuncyList<T> Take<T>(this FuncyList<T> self, int length)
+        public static FuncyList<T> Take<T>(this FuncyList<T> source, int count)
         {
-            if (self.IsNil || length <= 0)
+            if (source.IsNil || count <= 0)
             {
                 return FuncyList<T>.Nil();
             }
-            else
-            {
-                var cons = self.ToCons();
-                return FuncyList<T>.Cons(cons.Head, FuncyListNT.Take(cons.Tail, length - 1));
-            }
+
+            return FuncyList<T>.Construct(((IEnumerable<T>)source).Take<T>(count).ToArray());
         }
 
         public static Maybe<T> TakeFirst<T>(this FuncyList<T> self)
