@@ -316,6 +316,26 @@ namespace Funcy
 
     public static class FuncyListNT
     {
+        public static Maybe<T> ElementAt<T>(this FuncyList<T> source, int index)
+        {
+            if (source is Nil<T>)
+            {
+                return Maybe<T>.None();
+            }
+
+            if (index < 0)
+            {
+                return Maybe<T>.None();
+            }
+
+            if (index >= source.Count())
+            {
+                return Maybe<T>.None();
+            }
+
+            return Maybe<T>.Some(((IEnumerable<T>)source).ElementAt(index));
+        }
+
         public static FuncyList<T> Take<T>(this FuncyList<T> self, int length)
         {
             if (self.IsNil || length <= 0)
