@@ -343,16 +343,13 @@ namespace Funcy
 
         public static Maybe<T> First<T>(this FuncyList<T> source)
         {
-            var take1 = FuncyListNT.Take(source, 1);
-
-            if (take1.IsNil)
+            if (source.IsNil)
             {
                 return Maybe<T>.None();
             }
             else
             {
-                var cons = source.ToCons();
-                return Maybe<T>.Some(cons.Head);
+                return Maybe<T>.Some(source.ToCons().Head);
             }
         }
     }
