@@ -341,9 +341,9 @@ namespace Funcy
             return FuncyList<T>.Construct(((IEnumerable<T>)source).Take<T>(count).ToArray());
         }
 
-        public static Maybe<T> TakeFirst<T>(this FuncyList<T> self)
+        public static Maybe<T> First<T>(this FuncyList<T> source)
         {
-            var take1 = FuncyListNT.Take(self, 1);
+            var take1 = FuncyListNT.Take(source, 1);
 
             if (take1.IsNil)
             {
@@ -351,7 +351,7 @@ namespace Funcy
             }
             else
             {
-                var cons = self.ToCons();
+                var cons = source.ToCons();
                 return Maybe<T>.Some(cons.Head);
             }
         }

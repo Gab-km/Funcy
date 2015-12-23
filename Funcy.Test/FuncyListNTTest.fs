@@ -115,26 +115,26 @@ module FuncyListNTTest =
         do! assertEquals <|| (flist.Take(3).FMap(func), flist.FMap(func).Take(3))
     }
 
-    // TakeFirst
-    let ``FuncyListNT.TakeFirst(cons) returns a value of type Cons`` = test {
+    // First
+    let ``FuncyListNT.First(cons) returns a value of type Cons`` = test {
         let flist = FuncyList.Construct([| "my"; "name"; "is"; "FuncyList" |])
-        let sut = flist.TakeFirst()
+        let sut = flist.First()
         do! assertEquals typeof<Some<string>> <| sut.GetType()
     }
-    let ``FuncyListNT.TakeFirst(nil) returns a value of type Nil`` = test {
+    let ``FuncyListNT.First(nil) returns a value of type Nil`` = test {
         let flist = FuncyList<string>.Construct([||])
-        let sut = flist.TakeFirst()
+        let sut = flist.First()
         do! assertEquals typeof<None<string>> <| sut.GetType()
     }
 
-    let ``FuncyListNT.TakeFirst(list) takes a first element`` = test {
+    let ``FuncyListNT.First(list) takes a first element`` = test {
         let flist = FuncyList.Construct([| "my"; "name"; "is"; "FuncyList" |])
-        let sut = flist.TakeFirst()
+        let sut = flist.First()
         do! assertEquals sut <| (Maybe.Some("my") :> Maybe<string>)
     }
 
-    let ``FuncyListNT.TakeFirst commutes with Length function`` = test {
+    let ``FuncyListNT.First commutes with Length function`` = test {
         let flist = FuncyList.Construct([| "my"; "name"; "is"; "FuncyList" |])
         let func = Func<string, int>(fun s -> s.Length)
-        do! assertEquals <|| (flist.TakeFirst().FMap(func), flist.FMap(func).TakeFirst())
+        do! assertEquals <|| (flist.First().FMap(func), flist.FMap(func).First())
     }
