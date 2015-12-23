@@ -67,13 +67,13 @@ module NaturalTransformationLawsCheck =
             apply ``NonEmptyListNT.Take is natural``
         }
 
-    module FirstForNonEmptyList =
+    module TakeFirstForNonEmptyList =
 
-        let ``NonEmptyListNT.First is natural`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.list(Arb.int).NonEmpty)(fun f a ->
+        let ``NonEmptyListNT.TakeFirst is natural`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.list(Arb.int).NonEmpty)(fun f a ->
             let Fa = NonEmptyList.Construct(a)
             f.Invoke((Fa.TakeFirst())) = Fa.FMap(f).TakeFirst()
         )
 
         let ``NaturalTransformation laws`` = property {
-            apply ``NonEmptyListNT.First is natural``
+            apply ``NonEmptyListNT.TakeFirst is natural``
         }
