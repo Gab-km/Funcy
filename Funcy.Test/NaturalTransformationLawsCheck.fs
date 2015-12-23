@@ -33,15 +33,15 @@ module NaturalTransformationLawsCheck =
             apply ``FuncyListNT.Take is natural``
         }
 
-    module TakeFirstForFuncyList =
+    module FirstForFuncyList =
 
-        let ``FuncyListNT.TakeFirst is natural`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.nonNull(Arb.array Arb.int))(fun f a ->
+        let ``FuncyListNT.First is natural`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.nonNull(Arb.array Arb.int))(fun f a ->
             let Fa = FuncyList.Construct(a)
-            Fa.TakeFirst().FMap(f) = Fa.FMap(f).TakeFirst()
+            Fa.First().FMap(f) = Fa.FMap(f).First()
         )
 
         let ``NaturalTransformation laws`` = property {
-            apply ``FuncyListNT.TakeFirst is natural``
+            apply ``FuncyListNT.First is natural``
         }
 
     // NonEmptyList
