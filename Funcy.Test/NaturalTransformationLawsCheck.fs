@@ -22,6 +22,17 @@ module NaturalTransformationLawsCheck =
      *)
 
     // FuncyList
+    module ElementAtForFuncyList =
+
+        let ``FuncyListNT.ElementAt is natural`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.nonNull(Arb.array Arb.int), Arb.int)(fun f a l ->
+            let Fa = FuncyList.Construct(a)
+            Fa.ElementAt(l).FMap(f) = Fa.FMap(f).ElementAt(l)
+        )
+
+        let ``NaturalTransformation laws`` = property {
+            apply ``FuncyListNT.ElementAt is natural``
+        }
+
     module TakeForFuncyList =
 
         let ``FuncyListNT.Take is natural`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.nonNull(Arb.array Arb.int), Arb.int)(fun f a l ->

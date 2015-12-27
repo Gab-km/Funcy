@@ -77,7 +77,7 @@ module FuncyListNTTest =
     }
     let ``FuncyListNT.ElementAt(nil, 11) returns None`` = test {
         let nil = FuncyList<int>.Construct([||]);
-        let sut = nil.ElementAt(1);
+        let sut = nil.ElementAt(11);
         do! assertEquals sut <| (Maybe.None() :> Maybe<int>);
     }
 
