@@ -150,7 +150,7 @@ namespace Funcy
         public abstract FuncyList<TReturn> ComputeWith<TReturn>(Func<T, FuncyList<TReturn>> f);
     }
 
-    public class Cons<T> : FuncyList<T>
+    public class Cons<T> : FuncyList<T>, IExtractor<Tuple<T, FuncyList<T>>>
     {
         private T head;
         public T Head
@@ -240,6 +240,11 @@ namespace Funcy
         public override FuncyList<TReturn> ComputeWith<TReturn>(Func<T, FuncyList<TReturn>> f)
         {
             return FuncyList<TReturn>.Construct(this.SelectMany(h => f(h)).ToArray());
+        }
+
+        public Tuple<T, FuncyList<T>> Extract()
+        {
+            return Tuple.Create<T, FuncyList<T>>(this.head, this.tail);
         }
     }
 
