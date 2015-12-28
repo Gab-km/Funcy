@@ -1,4 +1,5 @@
 ﻿using Funcy.Computations;
+using Funcy.Patterns;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -156,7 +157,7 @@ namespace Funcy
         }
     }
 
-    public class ConsNEL<T> : NonEmptyList<T>
+    public class ConsNEL<T> : NonEmptyList<T>, IExtractor<Tuple<T, NonEmptyList<T>>>
     {
         private T head;
         public T Head { get { return this.head; } }
@@ -235,9 +236,14 @@ namespace Funcy
         {
             return NonEmptyList<TReturn>.ConsNEL(f(this.head), this.tail.FMap(f));
         }
+
+        public Tuple<T, NonEmptyList<T>> Extract()
+        {
+            return Tuple.Create<T, NonEmptyList<T>>(this.head, this.tail);
+        }
     }
 
-    public class Singleton<T> : NonEmptyList<T>
+    public class Singleton<T> : NonEmptyList<T>, IExtractor<T>
     {
         private T value;
         public T Value { get { return this.value; } }
@@ -301,6 +307,11 @@ namespace Funcy
         public override NonEmptyList<TReturn> FMap<TReturn>(Func<T, TReturn> f)
         {
             return NonEmptyList<TReturn>.Singleton(f(this.value));
+        }
+
+        public T Extract()
+        {
+            return this.value;
         }
     }
 
