@@ -336,6 +336,18 @@ namespace Funcy
             return Maybe<T>.Some(((IEnumerable<T>)source).ElementAt(index));
         }
 
+        public static Maybe<T> Last<T>(this FuncyList<T> source)
+        {
+            if (source.IsNil)
+            {
+                return Maybe<T>.None();
+            }
+            else
+            {
+                return Maybe<T>.Some(((IEnumerable<T>)source).Last());
+            }
+        }
+
         public static FuncyList<T> Take<T>(this FuncyList<T> source, int count)
         {
             if (source.IsNil || count <= 0)
