@@ -85,7 +85,7 @@ module FuncyListApplicativeTest =
         let nil = FuncyList.Nil()
         let sut = nil.ApplyRight(FuncyList.Construct([|0xCAuy; 0xFEuy|]))
         do! assertEquals typeof<Cons<byte>> <| sut.GetType()
-        do! assertEquals sut <| (FuncyList.Cons(0xCAuy, FuncyList.Cons(0xFEuy, FuncyList.Nil())) :> FuncyList<byte>)
+        do! assertEquals sut <| FuncyList.Cons(0xCAuy, FuncyList.Cons(0xFEuy, FuncyList.Nil()))
     }
 
     let ``Cons(+ 5) <*> Cons(3, 4, 10) = Cons(8, 9, 15)`` = test {

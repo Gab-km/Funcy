@@ -16,7 +16,7 @@ module FuncyListNTTest =
     let ``FuncyListNT.ElementAt(cons, 0) returns Some(cons.head)`` = test {
         let cons = FuncyList.Construct([|1|]);
         let sut = cons.ElementAt(0);
-        do! assertEquals sut <| (Maybe.Some(1) :> Maybe<int>)
+        do! assertEquals sut <| Maybe.Some(1)
     }
     let ``FuncyListNT.ElementAt([1, 2, 3], 1) returns a value of type Some<int>`` = test {
         let cons = FuncyList.Construct([|1; 2; 3|]);
@@ -26,7 +26,7 @@ module FuncyListNTTest =
     let ``FuncyListNT.ElementAt([1, 2, 3], 1) returns Some(2)`` = test {
         let cons = FuncyList.Construct([|1; 2; 3|]);
         let sut = cons.ElementAt(1);
-        do! assertEquals sut <| (Maybe.Some(2) :> Maybe<int>)
+        do! assertEquals sut <| Maybe.Some(2)
     }
     let ``FuncyListNT.ElementAt(nil, 0) returns a value of a type None`` = test {
         let nil = FuncyList<int>.Construct([||]);
@@ -96,7 +96,7 @@ module FuncyListNTTest =
     let ``FuncyListNT.Last(list) takes a first element`` = test {
         let flist = FuncyList.Construct([| "my"; "name"; "is"; "FuncyList" |])
         let sut = flist.Last()
-        do! assertEquals sut <| (Maybe.Some("FuncyList") :> Maybe<string>)
+        do! assertEquals sut <| Maybe.Some("FuncyList")
     }
 
     let ``FuncyListNT.Last commutes with Length function`` = test {
@@ -130,7 +130,7 @@ module FuncyListNTTest =
     let ``FuncyListNT.Take(list, 0) returns Nil`` = test {
         let flist = FuncyList.Construct([| "FuncyList" |])
         let sut = flist.Take(0)
-        do! assertEquals sut <| (FuncyList<string>.Nil() :> FuncyList<string>)
+        do! assertEquals sut <| FuncyList<string>.Nil()
     }
     
     let ``FuncyListNT.Take commutes with Length function`` = test {
@@ -154,7 +154,7 @@ module FuncyListNTTest =
     let ``FuncyListNT.First(list) takes a first element`` = test {
         let flist = FuncyList.Construct([| "my"; "name"; "is"; "FuncyList" |])
         let sut = flist.First()
-        do! assertEquals sut <| (Maybe.Some("my") :> Maybe<string>)
+        do! assertEquals sut <| Maybe.Some("my")
     }
 
     let ``FuncyListNT.First commutes with Length function`` = test {

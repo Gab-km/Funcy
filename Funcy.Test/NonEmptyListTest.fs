@@ -5,35 +5,6 @@ open Persimmon
 open UseTestNameByReflection
 
 module NonEmptyListTest =
-    // constructor function
-    let ``NonEmptyList.Singleton(1) is type of Singleton<int>`` = test {
-        let singleton = NonEmptyList.Singleton(1)
-        do! assertEquals typeof<Singleton<int>> <| singleton.GetType()
-        do! assertEquals singleton.Value 1
-    }
-    let ``NonEmptyList.ConsNEL(1, NonEmptyList.Singleton(2)) is type of ConsNEL<int>`` = test {
-        let consNEL = NonEmptyList.ConsNEL(1, NonEmptyList.Singleton(2))
-        do! assertEquals typeof<ConsNEL<int>> <| consNEL.GetType()
-        do! assertEquals consNEL.Head 1
-        let tail = consNEL.Tail;
-        do! assertEquals typeof<Singleton<int>> <| tail.GetType()
-        do! assertEquals <|| (tail.ToSingleton().Value, 2)
-    }
-    let ``NonEmptyList<string>.Construct(null) throws ArgumentException`` = test {
-        let! e = trap { NonEmptyList<string>.Construct(null) |> ignore }
-        do! assertEquals typeof<System.ArgumentException> <| e.GetType()
-    }
-    let ``NonEmptyList<float>.Construct({}) throws ArgumentException`` = test {
-        let! e = trap { NonEmptyList<float>.Construct([||]) |> ignore }
-        do! assertEquals typeof<System.ArgumentException> <| e.GetType()
-    }
-    let ``NonEmptyList<int>.Construct({1, 2, 3}) = ConsNEL<int>(1, ConsNEL<int>(2, Singleton<int>(3)))`` = test {
-        let nel = NonEmptyList.Construct([1; 2; 3])
-        do! assertEquals typeof<ConsNEL<int>> <| nel.GetType()
-        do! assertEquals nel <| (NonEmptyList.ConsNEL(1, NonEmptyList.ConsNEL(2, NonEmptyList.Singleton(3))) :> NonEmptyList<int>)
-        do! assertNotEquals nel <| (NonEmptyList.ConsNEL(1, NonEmptyList.ConsNEL(2, NonEmptyList.Singleton(4))) :> NonEmptyList<int>)
-        do! assertNotEquals nel <| (NonEmptyList.ConsNEL(1, NonEmptyList.ConsNEL(4, NonEmptyList.Singleton(3))) :> NonEmptyList<int>)
-    }
     // ConsNEL
     let ``ConsNEL<T>.IsConsNEL should be true`` = test {
         let consNEL = NonEmptyList.ConsNEL(1, NonEmptyList.Singleton(0))
@@ -52,17 +23,47 @@ module NonEmptyListTest =
         let singleton = NonEmptyList.Singleton(5)
         do! assertPred <| singleton.IsSingleton
     }
+    // constructor function
+    let ``NonEmptyList.Singleton(1) is type of Singleton<int>`` = test {
+        let singleton = NonEmptyList.Singleton(1)
+        do! assertEquals typeof<Singleton<int>> <| singleton.GetType()
+        do! assertEquals 1 <| singleton.ToSingleton().Value 
+    }
+    let ``NonEmptyList.ConsNEL(1, NonEmptyList.Singleton(2)) is type of ConsNEL<int>`` = test {
+        let nel = NonEmptyList.ConsNEL(1, NonEmptyList.Singleton(2))
+        do! assertEquals typeof<ConsNEL<int>> <| nel.GetType()
+        let consNEL = nel.ToConsNEL()
+        do! assertEquals 1 <| consNEL.Head
+        let tail = consNEL.Tail;
+        do! assertEquals typeof<Singleton<int>> <| tail.GetType()
+        do! assertEquals <|| (tail.ToSingleton().Value, 2)
+    }
+    let ``NonEmptyList<string>.Construct(null) throws ArgumentException`` = test {
+        let! e = trap { NonEmptyList<string>.Construct(null) |> ignore }
+        do! assertEquals typeof<System.ArgumentException> <| e.GetType()
+    }
+    let ``NonEmptyList<float>.Construct({}) throws ArgumentException`` = test {
+        let! e = trap { NonEmptyList<float>.Construct([||]) |> ignore }
+        do! assertEquals typeof<System.ArgumentException> <| e.GetType()
+    }
+    let ``NonEmptyList<int>.Construct({1, 2, 3}) = ConsNEL<int>(1, ConsNEL<int>(2, Singleton<int>(3)))`` = test {
+        let nel = NonEmptyList.Construct([1; 2; 3])
+        do! assertEquals typeof<ConsNEL<int>> <| nel.GetType()
+        do! assertEquals nel <| (NonEmptyList.ConsNEL(1, NonEmptyList.ConsNEL(2, NonEmptyList.Singleton(3))))
+        do! assertNotEquals nel <| (NonEmptyList.ConsNEL(1, NonEmptyList.ConsNEL(2, NonEmptyList.Singleton(4))))
+        do! assertNotEquals nel <| (NonEmptyList.ConsNEL(1, NonEmptyList.ConsNEL(4, NonEmptyList.Singleton(3))))
+    }
     // head(ConsNEL(h, t)) = h
     let ``NonEmptyList.ConsNEL(h, _).Head = h`` = test {
         let nel = NonEmptyList<int>.ConsNEL(1, NonEmptyList.Singleton(2))
-        let head = nel.Head;
+        let head = nel.ToConsNEL().Head;
         do! assertEquals head 1
     }
     // tail(ConsNEL(h, t)) = t
     let ``NonEmptyList<T>.Cons(_, t).Tail = t`` = test {
         let nel = NonEmptyList.ConsNEL(1, NonEmptyList.ConsNEL(2, NonEmptyList.Singleton(3)))
-        let tail = nel.Tail;
-        do! assertEquals tail (NonEmptyList.ConsNEL(2, NonEmptyList.Singleton(3)) :> NonEmptyList<int>)
+        let tail = nel.ToConsNEL().Tail;
+        do! assertEquals tail <| NonEmptyList.ConsNEL(2, NonEmptyList.Singleton(3))
     }
     // equality on Singleton
     let ``equality on Singleton<T> depends on its contents`` = test {
@@ -70,7 +71,7 @@ module NonEmptyListTest =
         let rhs = NonEmptyList.Singleton("hoge")
         do! assertEquals lhs rhs
         do! assertPred (lhs = rhs)
-        do! assertEquals lhs.Value rhs.Value
+        do! assertEquals <|| (lhs.ToSingleton().Value, rhs.ToSingleton().Value)
         do! assertEquals <|| (lhs.GetHashCode(), rhs.GetHashCode())
     }
     let ``when values differ, Singleton<T> should differ`` = test {
@@ -113,7 +114,7 @@ module NonEmptyListTest =
     let ``ConsNEL<T> never equals to Singleton<T>`` = test {
         let consNEL = NonEmptyList.ConsNEL(1, NonEmptyList.Singleton(2))
         let singleton = NonEmptyList.Singleton(2)
-        do! assertNotEquals (consNEL :> NonEmptyList<int>) (singleton :> NonEmptyList<int>)
+        do! assertNotEquals consNEL singleton
     }
     // Singleton<T> constructor is monotone
     let ``Singleton<T> reserve ordering`` = test {
@@ -178,7 +179,7 @@ module NonEmptyListFunctorTest =
         let singleton = NonEmptyList.Singleton([|0xCAuy; 0xFEuy; 0xBAuy;  0xBEuy|])
         let sut = singleton.FMap(Func<byte [], byte>(fun arr -> Array.max arr))
         do! assertEquals typeof<Singleton<byte>> <| sut.GetType()
-        do! assertEquals sut <| (NonEmptyList.Singleton(0xFEuy) :> NonEmptyList<byte>)
+        do! assertEquals sut <| NonEmptyList.Singleton(0xFEuy)
     }
     
 module NonEmptyListApplicativeTest =
@@ -265,13 +266,13 @@ module NonEmptyListApplicativeTest =
     let ``Singleton<bool> <* ConsNEL<long> = Singleton<bool>`` = test {
         let sut = NonEmptyList.Singleton(true).ApplyLeft(NonEmptyList.ConsNEL(33L, NonEmptyList.Singleton(4L)))
         do! assertEquals typeof<Singleton<bool>> <| sut.GetType()
-        do! assertEquals sut <| (NonEmptyList.Singleton(true) :> NonEmptyList<bool>)
+        do! assertEquals sut <| NonEmptyList.Singleton(true)
     }
     
     let ``Singleton<string> *> ConsNEL<byte> = ConsNEL<byte>`` = test {
         let sut = NonEmptyList.Singleton("CAFE").ApplyRight(NonEmptyList.Construct([0xCAuy; 0xFEuy]))
         do! assertEquals typeof<ConsNEL<byte>> <| sut.GetType()
-        do! assertEquals sut <| (NonEmptyList.ConsNEL(0xCAuy, NonEmptyList.Singleton(0xFEuy)) :> NonEmptyList<byte>)
+        do! assertEquals sut <| NonEmptyList.ConsNEL(0xCAuy, NonEmptyList.Singleton(0xFEuy))
     }
 
     let inline (!>) (x:^a) : ^b = ((^a or ^b) : (static member op_Implicit : ^a -> ^b) x)   // for implicit conversion in F#
@@ -355,6 +356,6 @@ module NonEmptyListComputationTest =
         let singleton2 = NonEmptyList.Singleton(4)
         let sut = singleton1.ComputeWith(fun x -> singleton2.FMap(fun y -> x + y))
         do! assertEquals typeof<Singleton<int>> <| sut.GetType()
-        let expected = NonEmptyList.Singleton(37) :> NonEmptyList<int>
+        let expected = NonEmptyList.Singleton(37)
         do! assertEquals expected sut
     }

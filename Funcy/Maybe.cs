@@ -11,12 +11,12 @@ namespace Funcy
 {
     public abstract class Maybe<T> : IStructuralEquatable, IStructuralComparable, IComputable<T>
     {
-        public static Some<T> Some(T value)
+        public static Maybe<T> Some(T value)
         {
             return new Some<T>(value);
         }
 
-        public static None<T> None()
+        public static Maybe<T> None()
         {
             return new None<T>();
         }

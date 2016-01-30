@@ -45,27 +45,27 @@ module MaybeApplicativeTest =
     let ``Some<int> <* Some<string> = Some<int>`` = test {
         let sut = Maybe.Some(2).ApplyLeft(Maybe.Some("hoge"))
         do! assertEquals typeof<Some<int>> <| sut.GetType()
-        do! assertEquals sut <| (Maybe.Some(2) :> Maybe<int>)
+        do! assertEquals sut <| Maybe.Some(2)
     }
 
     let ``Some<float> *> Some<decimal> = Some<decimal>`` = test {
         let sut = Maybe.Some(3.14).ApplyRight(Maybe.Some(3.14m))
         do! assertEquals typeof<Some<decimal>> <| sut.GetType()
-        do! assertEquals sut <| (Maybe.Some(3.14m) :> Maybe<decimal>)
+        do! assertEquals sut <| Maybe.Some(3.14m)
     }
 
     let ``None<bool> <* Some<long> = None<bool>`` = test {
-        let none : None<bool> = Maybe.None()
+        let none = Maybe<bool>.None()
         let sut = none.ApplyLeft(Maybe.Some(20L))
         do! assertEquals typeof<None<bool>> <| sut.GetType()
         do! assertEquals sut <| (Maybe.None() :> Maybe<bool>)
     }
 
     let ``None<string> *> Some<byte> = Some<byte>`` = test {
-        let none : None<string> = Maybe.None()
+        let none = Maybe<string>.None()
         let sut = none.ApplyRight(Maybe.Some(0xCAuy))
         do! assertEquals typeof<Some<byte>> <| sut.GetType()
-        do! assertEquals sut <| (Maybe.Some(0xCAuy) :> Maybe<byte>)
+        do! assertEquals sut <| Maybe.Some(0xCAuy)
     }
 
     let ``Some(+ 5) <*> Some(3) = Some(8)`` = test {

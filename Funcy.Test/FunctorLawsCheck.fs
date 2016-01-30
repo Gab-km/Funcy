@@ -13,13 +13,13 @@ module FunctorLawsCheck =
         let ``Identity in Some<T>`` = Prop.forAll(Arb.int)(fun i ->
             let maybe = Maybe.Some(i)
             // fmap id == id
-            maybe.FMap(funcId) = (maybe :> Maybe<int>)
+            maybe.FMap(funcId) = maybe
         )
 
         let ``Identity in None<T>`` = Prop.forAll(Arb.int)(fun i ->
             let maybe = Maybe<int>.None()
             // fmap id == id
-            maybe.FMap(funcId) = (maybe :> Maybe<int>)
+            maybe.FMap(funcId) = maybe
         )
 
         let ``Composition in Some<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g i ->
@@ -45,13 +45,13 @@ module FunctorLawsCheck =
         let ``Identity in Right<TLeft, TRight>`` = Prop.forAll(Arb.int)(fun i ->
             let either = Either<exn, int>.Right(i)
             // fmap id == id
-            either.FMap(funcId) = (either :> Either<exn, int>)
+            either.FMap(funcId) = either
         )
 
         let ``Identity in Left<TLeft, TRight>`` = Prop.forAll(Arb.string.NonNull)(fun s ->
             let either = Either<exn, int>.Left(exn(s))
             // fmap id == id
-            either.FMap(funcId) = (either :> Either<exn, int>)
+            either.FMap(funcId) = either
         )
 
         let ``Composition in Right<TLeft, TRight>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g i ->
@@ -83,7 +83,7 @@ module FunctorLawsCheck =
         let ``Identity in Nil<T>`` = Prop.forAll(Arb.int)(fun i ->
             let fList = FuncyList<int>.Nil()
             // fmap id == id
-            fList.FMap(funcId) = (fList :> FuncyList<int>)
+            fList.FMap(funcId) = fList
         )
 
         let ``Composition in Cons<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g i ->
@@ -115,13 +115,13 @@ module FunctorLawsCheck =
         let ``Identity in ConsNEL<T>`` = Prop.forAll(Arb.int, Arb.int)(fun x y ->
             let consNEL = NonEmptyList.ConsNEL(x, NonEmptyList.Singleton(y))
             // fmap id == id
-            consNEL.FMap(funcId) = (consNEL :> NonEmptyList<int>)
+            consNEL.FMap(funcId) = consNEL
         )
 
         let ``Identity in Singleton<T>`` = Prop.forAll(Arb.int)(fun i ->
             let singleton = NonEmptyList<int>.Singleton(i)
             // fmap id == id
-            singleton.FMap(funcId) = (singleton :> NonEmptyList<int>)
+            singleton.FMap(funcId) = singleton
         )
 
         let ``Composition in NonEmptyList<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmpty(Arb.list Arb.int))(fun f g ls ->

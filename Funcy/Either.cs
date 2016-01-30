@@ -11,12 +11,12 @@ namespace Funcy
 {
     public abstract class Either<TLeft, TRight> : IStructuralEquatable, IComputable<TRight>
     {
-        public static Left<TLeft, TRight> Left(TLeft left)
+        public static Either<TLeft, TRight> Left(TLeft left)
         {
             return new Left<TLeft, TRight>(left);
         }
 
-        public static Right<TLeft, TRight> Right(TRight right)
+        public static Either<TLeft, TRight> Right(TRight right)
         {
             return new Right<TLeft, TRight>(right);
         }

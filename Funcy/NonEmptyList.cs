@@ -10,12 +10,12 @@ namespace Funcy
 {
     public abstract class NonEmptyList<T> : IStructuralEquatable, IStructuralComparable, IEnumerable<T>, IComputable<T>
     {
-        public static ConsNEL<T> ConsNEL(T head, NonEmptyList<T> tail)
+        public static NonEmptyList<T> ConsNEL(T head, NonEmptyList<T> tail)
         {
             return new ConsNEL<T>(head, tail);
         }
 
-        public static Singleton<T> Singleton(T value)
+        public static NonEmptyList<T> Singleton(T value)
         {
             return new Singleton<T>(value);
         }

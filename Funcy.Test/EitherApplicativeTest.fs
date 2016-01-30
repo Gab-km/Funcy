@@ -43,7 +43,7 @@ module EitherApplicativeTest =
     let ``Right<exn, int> <* Right<exn, string> = Right<exn, int>`` = test {
         let sut = Either<exn, int>.Right(4).ApplyLeft(Either<exn, string>.Right("fuga"))
         do! assertEquals typeof<Right<exn, int>> <| sut.GetType()
-        do! assertEquals sut <| (Either<exn, int>.Right(4) :> Either<exn, int>)
+        do! assertEquals sut <| Either<exn, int>.Right(4)
     }
 
     let ``Right<TLeft, TRight>.Point returns Right<TLeft, TRight>`` = test {

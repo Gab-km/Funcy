@@ -41,7 +41,7 @@ module NonEmptyListNTTest =
     let ``NonEmptyListNT.Take(list, 0) returns Nil`` = test {
         let nel = NonEmptyList.Construct([| "NonEmptyList" |])
         let sut = nel.Take(0)
-        do! assertEquals sut <| (FuncyList<string>.Nil() :> FuncyList<string>)
+        do! assertEquals sut <| FuncyList<string>.Nil()
     }
     
     let ``NonEmptyListNT.Take commutes with Length function`` = test {

@@ -24,5 +24,5 @@ module FuncyListFunctorTest =
         let nil = FuncyList<byte []>.Nil()
         let sut = nil.FMap(Func<byte [], byte>(fun arr -> Array.sum arr))
         do! assertEquals typeof<Nil<byte>> <| sut.GetType()
-        do! assertEquals sut <| (FuncyList<byte>.Nil() :> FuncyList<byte>)
+        do! assertEquals sut <| FuncyList<byte>.Nil()
     }
