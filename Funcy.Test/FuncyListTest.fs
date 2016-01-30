@@ -21,7 +21,7 @@ module FuncyListTest =
     let ``FuncyList<int>.Construct(1, 2, 3) = Cons<int>(1, Cons<int>(2, Cons<int>(3, Nil<int>())))`` = test {
         let list = FuncyList.Construct(1, 2, 3)
         do! assertEquals typeof<Cons<int>> <| list.GetType()
-        do! assertEquals list <| (FuncyList.Cons(1, FuncyList.Cons(2, FuncyList.Cons(3, FuncyList.Nil()))) :> FuncyList<int>)
+        do! assertEquals list <| FuncyList.Cons(1, FuncyList.Cons(2, FuncyList.Cons(3, FuncyList.Nil())))
     }
     // cons
     let ``Cons<T>.IsCons should be true`` = test {
@@ -44,14 +44,14 @@ module FuncyListTest =
     // head(cons(h, t)) = h
     let ``FuncyList.Cons(h, _).Head = h`` = test {
         let list = FuncyList<int>.Cons(1, FuncyList<int>.Nil())
-        let head = list.Head;
+        let head = list.ToCons().Head;
         do! assertEquals head <| 1
     }
     // tail(cons(h, t)) = t
     let ``FuncyList<int>.Cons(_, t).Tail = t`` = test {
         let list = FuncyList.Cons(1, FuncyList.Cons(2, FuncyList.Nil()))
-        let tail = list.Tail;
-        do! assertEquals tail <| (FuncyList.Cons(2, FuncyList<int>.Nil()) :> FuncyList<int>)
+        let tail = list.ToCons().Tail;
+        do! assertEquals tail <| FuncyList.Cons(2, FuncyList<int>.Nil())
     }
     // equality on Cons
     let ``equality on Cons<T> depends on its contents`` = test {
@@ -93,7 +93,7 @@ module FuncyListTest =
     let ``Cons<T> never equals to Nil<T>`` = test {
         let cons = FuncyList.Cons(1, FuncyList.Nil())
         let nil = FuncyList<int>.Nil()
-        do! assertNotEquals (cons :> FuncyList<int>) (nil :> FuncyList<int>)
+        do! assertNotEquals cons nil
     }
     // Cons<T> constructor is monotone
     let ``Cons<T> reserve ordering`` = test {
@@ -111,7 +111,7 @@ module FuncyListTest =
     let ``Cons<T> is larger than Nil<T>`` = test {
         let cons = FuncyList.Cons(1, FuncyList.Nil())
         let nil = FuncyList<int>.Nil()
-        do! assertPred ((cons :> FuncyList<int>) > (nil :> FuncyList<int>))
+        do! assertPred (cons > nil)
     }
 
 module FuncyListIterableTest =

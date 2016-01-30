@@ -11,12 +11,12 @@ namespace Funcy
 {
     public abstract class FuncyList<T> : IStructuralEquatable, IStructuralComparable, IEnumerable<T>, IComputable<T>
     {
-        public static Cons<T> Cons(T head, FuncyList<T> tail)
+        public static FuncyList<T> Cons(T head, FuncyList<T> tail)
         {
             return new Cons<T>(head, tail);
         }
 
-        public static Nil<T> Nil()
+        public static FuncyList<T> Nil()
         {
             return new Nil<T>();
         }

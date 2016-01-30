@@ -17,13 +17,13 @@ module ApplicativeLawsCheck =
         let ``Identity in Some<T>`` = Prop.forAll(Arb.int)(fun i ->
             let v = Maybe.Some(i)
             // pure id <*> v = v
-            v.Apply(pureMaybe funcId) = (v :> Maybe<int>)
+            v.Apply(pureMaybe funcId) = v
         )
 
         let ``Identity in None<T>`` = Prop.forAll(Arb.int)(fun i ->
             let v = Maybe<int>.None()
             // pure id <*> v = v
-            v.Apply(pureMaybe funcId) = (v :> Maybe<int>)
+            v.Apply(pureMaybe funcId) = v
         )
 
         let ``Composition in Maybe<T> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g i ->
@@ -68,7 +68,7 @@ module ApplicativeLawsCheck =
 
         let ``Homomorphism in Maybe<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f x ->
             // pure f <*> pure x = pure (f x)
-            (pureMaybe x).Apply(pureMaybe f) = (pureMaybe(f.Invoke(x)) :> Maybe<int>)
+            (pureMaybe x).Apply(pureMaybe f) = pureMaybe(f.Invoke(x))
         )
 
         let ``Interchange in Maybe<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f y ->
@@ -94,13 +94,13 @@ module ApplicativeLawsCheck =
         let ``Identity in Right<TLeft, TRight>`` = Prop.forAll(Arb.int)(fun i ->
             let v = Either.Right(i)
             // pure id <*> v = v
-            v.Apply(pureEither funcId) = (v :> Either<exn, int>)
+            v.Apply(pureEither funcId) = v
         )
         
         let ``Identity in Left<TLeft, TRight>`` = Prop.forAll(Arb.string.NonNull)(fun s ->
             let v = Either.Left(exn(s))
             // pure id <*> v = v
-            v.Apply(pureEither funcId) = (v :> Either<exn, int>)
+            v.Apply(pureEither funcId) = v
         )
 
         let ``Composition in Either<TLeft, TRight> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g i ->
@@ -171,13 +171,13 @@ module ApplicativeLawsCheck =
         let ``Identity in Cons<T>`` = Prop.forAll(Arb.int)(fun i ->
             let v = FuncyList.Cons(i, FuncyList.Nil())
             // pure id <*> v = v
-            v.Apply(pureFList funcId) = (v :> FuncyList<int>)
+            v.Apply(pureFList funcId) = v
         )
 
         let ``Identity in Nil<T>`` = Prop.forAll(Arb.int)(fun i ->
             let v = FuncyList<int>.Nil()
             // pure id <*> v = v
-            v.Apply(pureFList funcId) = (v :> FuncyList<int>)
+            v.Apply(pureFList funcId) = v
         )
 
         let ``Composition in FuncyList<T> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g i ->
@@ -254,13 +254,13 @@ module ApplicativeLawsCheck =
         let ``Identity in ConsNEL<T>`` = Prop.forAll(Arb.int, Arb.int)(fun i j ->
             let v = NonEmptyList.ConsNEL(i, NonEmptyList.Singleton(j))
             // pure id <*> v = v
-            v.Apply(pureNEL funcId) = (v :> NonEmptyList<int>)
+            v.Apply(pureNEL funcId) = v
         )
 
         let ``Identity in Singleton<T>`` = Prop.forAll(Arb.int)(fun i ->
             let v = NonEmptyList.Singleton(i)
             // pure id <*> v = v
-            v.Apply(pureNEL funcId) = (v :> NonEmptyList<int>)
+            v.Apply(pureNEL funcId) = v
         )
 
         let ``Composition in NonEmptyList<T> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmpty(Arb.list <| Arb.systemFunc(CoArb.int, Arb.int)), Arb.int, Arb.int)(fun f gs i j ->
