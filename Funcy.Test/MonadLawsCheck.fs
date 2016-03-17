@@ -78,6 +78,76 @@ module MonadLawsCheck =
             apply ``Associativity in Maybe<T> 4``
         }
 
+    module MonadLawsInMaybeTC =
+        let returnMaybeTC<'T> x = MaybeTC.Some<'T> x
+
+        let ``Left identity in MaybeTC<T> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f a ->
+            let f_ = Func<int, MaybeTC<int>>(fun x -> MaybeTC.Some(f.Invoke(x)))
+            // return a >>= f ≡ f a
+            (returnMaybeTC a).ComputeWith(f_) = f_.Invoke(a)
+        )
+        
+        let ``Left identity in MaybeTC<T> 2`` = Prop.forAll(Arb.int)(fun a ->
+            let f_ = Func<int, MaybeTC<int>>(fun _ -> MaybeTC.None<int>())
+            // return a >>= f ≡ f a
+            (returnMaybeTC a).ComputeWith(f_) = f_.Invoke(a)
+        )
+
+        let ``Right identity in MaybeTC<T> 1`` = Prop.forAll(Arb.int)(fun i ->
+            let m = MaybeTC.Some(i)
+            // m >>= return ≡ m
+            m.ComputeWith(Func<int, MaybeTC<int>>(fun x -> returnMaybeTC x)) = m
+        )
+
+        let ``Right identity in MaybeTC<T> 2`` = Prop.forAll(Arb.int)(fun _ ->
+            let m = MaybeTC.None()
+            // m >>= return ≡ m
+            m.ComputeWith(Func<int, MaybeTC<int>>(fun x -> returnMaybeTC x)) = m
+        )
+
+        let ``Associativity in MaybeTC<T> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g i ->
+            let m = MaybeTC.Some(i)
+            let f_ = Func<int, MaybeTC<int>>(fun x -> MaybeTC.Some(f.Invoke(x)))
+            let g_ = Func<int, MaybeTC<int>>(fun x -> MaybeTC.Some(g.Invoke(x)))
+            // (m >>= f) >>= g ≡ m >>= (\x -> f x >>= g)
+            m.ComputeWith(f_).ComputeWith(g_) = m.ComputeWith(fun x -> f_.Invoke(x).ComputeWith(g_))
+        )
+
+        let ``Associativity in MaybeTC<T> 2`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int))(fun f g ->
+            let m = MaybeTC.None()
+            let f_ = Func<int, MaybeTC<int>>(fun x -> MaybeTC.Some(f.Invoke(x)))
+            let g_ = Func<int, MaybeTC<int>>(fun x -> MaybeTC.Some(g.Invoke(x)))
+            // (m >>= f) >>= g ≡ m >>= (\x -> f x >>= g)
+            m.ComputeWith(f_).ComputeWith(g_) = m.ComputeWith(fun x -> f_.Invoke(x).ComputeWith(g_))
+        )
+
+        let ``Associativity in MaybeTC<T> 3`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun g i ->
+            let m = MaybeTC.Some(i)
+            let f_ = Func<int, MaybeTC<int>>(fun _ -> MaybeTC.None())
+            let g_ = Func<int, MaybeTC<int>>(fun x -> MaybeTC.Some(g.Invoke(x)))
+            // (m >>= f) >>= g ≡ m >>= (\x -> f x >>= g)
+            m.ComputeWith(f_).ComputeWith(g_) = m.ComputeWith(fun x -> f_.Invoke(x).ComputeWith(g_))
+        )
+
+        let ``Associativity in MaybeTC<T> 4`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f i ->
+            let m = MaybeTC.Some(i)
+            let f_ = Func<int, MaybeTC<int>>(fun x -> MaybeTC.Some(f.Invoke(x)))
+            let g_ = Func<int, MaybeTC<int>>(fun _ -> MaybeTC.None())
+            // (m >>= f) >>= g ≡ m >>= (\x -> f x >>= g)
+            m.ComputeWith(f_).ComputeWith(g_) = m.ComputeWith(fun x -> f_.Invoke(x).ComputeWith(g_))
+        )
+
+        let ``Monad laws`` = property {
+            apply ``Left identity in MaybeTC<T> 1``
+            apply ``Left identity in MaybeTC<T> 2``
+            apply ``Right identity in MaybeTC<T> 1``
+            apply ``Right identity in MaybeTC<T> 2``
+            apply ``Associativity in MaybeTC<T> 1``
+            apply ``Associativity in MaybeTC<T> 2``
+            apply ``Associativity in MaybeTC<T> 3``
+            apply ``Associativity in MaybeTC<T> 4``
+        }
+
     module MonadLawsInEither =
         let returnEither<'TLeft, 'TRight> x = Either<'TLeft, 'TRight>.Right(x)
 
@@ -149,6 +219,79 @@ module MonadLawsCheck =
             apply ``Associativity in Either<TLeft, TRight> 2``
             apply ``Associativity in Either<TLeft, TRight> 3``
             apply ``Associativity in Either<TLeft, TRight> 4``
+        }
+
+    module MonadLawsInEitherTC =
+        let returnEitherTC<'TLeft, 'TRight> x = EitherTC<'TLeft>.Right<'TRight>(x)
+
+        let ``Left identity in EitherTC<TLeft, TRight> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f a ->
+            let f_ = Func<int, EitherTC<exn, int>>(fun x -> EitherTC<exn>.Right(f.Invoke(x)))
+            // return a >>= f ≡ f a
+            (returnEitherTC a).ComputeWith(f_) = f_.Invoke(a)
+        )
+        
+        let ``Left identity in EitherTC<TLeft, TRight> 2`` = Prop.forAll(Arb.string, Arb.int)(fun s a ->
+            let e = exn(s)
+            let f_ = Func<int, EitherTC<exn, int>>(fun _ -> EitherTC<exn>.Left<int>(e))
+            // return a >>= f ≡ f a
+            (returnEitherTC a).ComputeWith(f_) = f_.Invoke(a)
+        )
+
+        let ``Right identity in EitherTC<TLeft, TRight> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f i ->
+            let m = EitherTC<exn>.Right(i)
+            // m >>= return ≡ m
+            m.ComputeWith(Func<int, EitherTC<exn, int>>(fun x -> returnEitherTC x)) = m
+        )
+
+        let ``Right identity in EitherTC<TLeft, TRight> 2`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.string.NonNull)(fun f s ->
+            let m = EitherTC<exn>.Left<int>(exn(s))
+            // m >>= return ≡ m
+            m.ComputeWith(Func<int, EitherTC<exn, int>>(fun x -> returnEitherTC x)) = m
+        )
+
+        let ``Associativity in EitherTC<TLeft, TRight> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g i ->
+            let m = EitherTC<exn>.Right(i)
+            let f_ = Func<int, EitherTC<exn, int>>(fun x -> EitherTC<exn>.Right(f.Invoke(x)))
+            let g_ = Func<int, EitherTC<exn, int>>(fun x -> EitherTC<exn>.Right(g.Invoke(x)))
+            // (m >>= f) >>= g ≡ m >>= (\x -> f x >>= g)
+            m.ComputeWith(f_).ComputeWith(g_) = m.ComputeWith(fun x -> f_.Invoke(x).ComputeWith(g_))
+        )
+
+        let ``Associativity in EitherTC<TLeft, TRight> 2`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.string.NonNull)(fun f g s ->
+            let m = EitherTC<exn>.Left<int>(exn(s))
+            let f_ = Func<int, EitherTC<exn, int>>(fun x -> EitherTC<exn>.Right(f.Invoke(x)))
+            let g_ = Func<int, EitherTC<exn, int>>(fun x -> EitherTC<exn>.Right(g.Invoke(x)))
+            // (m >>= f) >>= g ≡ m >>= (\x -> f x >>= g)
+            m.ComputeWith(f_).ComputeWith(g_) = m.ComputeWith(fun x -> f_.Invoke(x).ComputeWith(g_))
+        )
+
+        let ``Associativity in EitherTC<TLeft, TRight> 3`` = Prop.forAll(Arb.string, Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun s g i ->
+            let m = EitherTC<exn>.Right(i)
+            let e = exn(s)
+            let f_ = Func<int, EitherTC<exn, int>>(fun _ -> EitherTC<exn>.Left<int>(e))
+            let g_ = Func<int, EitherTC<exn, int>>(fun x -> EitherTC<exn>.Right(g.Invoke(x)))
+            // (m >>= f) >>= g ≡ m >>= (\x -> f x >>= g)
+            m.ComputeWith(f_).ComputeWith(g_) = m.ComputeWith(fun x -> f_.Invoke(x).ComputeWith(g_))
+        )
+
+        let ``Associativity in EitherTC<TLeft, TRight> 4`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.string.NonNull, Arb.int)(fun f s i ->
+            let m = EitherTC<exn>.Right(i)
+            let f_ = Func<int, EitherTC<exn, int>>(fun x -> EitherTC<exn>.Right(f.Invoke(x)))
+            let e = exn(s)
+            let g_ = Func<int, EitherTC<exn, int>>(fun _ -> EitherTC<exn>.Left<int>(e))
+            // (m >>= f) >>= g ≡ m >>= (\x -> f x >>= g)
+            m.ComputeWith(f_).ComputeWith(g_) = m.ComputeWith(fun x -> f_.Invoke(x).ComputeWith(g_))
+        )
+
+        let ``Monad laws`` = property {
+            apply ``Left identity in EitherTC<TLeft, TRight> 1``
+            apply ``Left identity in EitherTC<TLeft, TRight> 2``
+            apply ``Right identity in EitherTC<TLeft, TRight> 1``
+            apply ``Right identity in EitherTC<TLeft, TRight> 2``
+            apply ``Associativity in EitherTC<TLeft, TRight> 1``
+            apply ``Associativity in EitherTC<TLeft, TRight> 2``
+            apply ``Associativity in EitherTC<TLeft, TRight> 3``
+            apply ``Associativity in EitherTC<TLeft, TRight> 4``
         }
 
     module MonadLawsInFuncyList =

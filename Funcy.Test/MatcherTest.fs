@@ -94,6 +94,32 @@ module MatcherTest =
             do! assertPred !isElse
         }
 
+        let ``Matcher should perform the from pattern matching when SomeTC<T> is matched`` = test {
+            let target = MaybeTC.Some(4)
+            let value = ref 0
+            let isSome = ref false
+            let isElse = ref false
+            let matcher = Matcher.Match(target).With(
+                                    Case.From<SomeTC<int>>().Then(fun v -> value := v; isSome := true),
+                                    Case.Else().Then(fun () -> isElse := true))
+            do! assertPred !isSome
+            do! assertEquals (target.ToSome().Value) !value
+            do! assertPred <| not !isElse
+        }
+
+        let ``Matcher should perform the from pattern matching when SomeTC<T> isn't matched`` = test {
+            let target = MaybeTC.None<string>()
+            let value = ref ""
+            let isSome = ref false
+            let isElse = ref false
+            let matcher = Matcher.Match(target).With(
+                                    Case.From<SomeTC<string>>().Then(fun s -> value := s; isSome := true),
+                                    Case.Else().Then(fun () -> isElse := true))
+            do! assertPred <| not !isSome
+            do! assertEquals "" !value
+            do! assertPred !isElse
+        }
+
         let ``Matcher should perform the from pattern matching when Right<TLeft, TRight> is matched`` = test {
             let target = Either<exn, int>.Right(3)
             let value = ref 0
@@ -117,6 +143,35 @@ module MatcherTest =
             let matcher = Matcher.Match(target).With(
                                     Case.From<Right<exn, int>>().Then(fun i -> valueRight := i; isRight := true),
                                     Case.From<Left<exn, int>>().Then(fun e ->valueLeft := e; isLeft := true))
+            do! assertPred <| not !isRight
+            do! assertEquals 0 !valueRight
+            do! assertPred !isLeft
+            do! assertEquals err !valueLeft
+        }
+
+        let ``Matcher should perform the from pattern matching when RightTC<TLeft, TRight> is matched`` = test {
+            let target = EitherTC<exn>.Right(3)
+            let value = ref 0
+            let isRight = ref false
+            let isLeft = ref false
+            let matcher = Matcher.Match(target).With(
+                                    Case.From<RightTC<exn, int>>().Then(fun i -> value := i; isRight := true),
+                                    Case.From<LeftTC<exn, int>>().Then(fun () -> isLeft := true))
+            do! assertPred !isRight
+            do! assertEquals 3 !value
+            do! assertPred <| not !isLeft
+        }
+
+        let ``Matcher should perform the from pattern matching when LeftTC<TLeft, TRight> is matched`` = test {
+            let err = Exception("hoge")
+            let target = EitherTC<exn>.Left<int>(err)
+            let valueRight = ref 0
+            let valueLeft = ref null : exn ref
+            let isRight = ref false
+            let isLeft = ref false
+            let matcher = Matcher.Match(target).With(
+                                    Case.From<RightTC<exn, int>>().Then(fun i -> valueRight := i; isRight := true),
+                                    Case.From<LeftTC<exn, int>>().Then(fun e ->valueLeft := e; isLeft := true))
             do! assertPred <| not !isRight
             do! assertEquals 0 !valueRight
             do! assertPred !isLeft
@@ -232,6 +287,22 @@ module MatcherTest =
             do! assertEquals "" actual
         }
 
+        let ``Matcher should perform the from pattern matching when SomeTC<T> is matched`` = test {
+            let target = MaybeTC.Some(4)
+            let actual = Matcher.ReturnMatch(target).With(
+                                    Case.From<SomeTC<int>>().Then<int>(id),
+                                    Case.Else().Then(fun () -> -1))
+            do! assertEquals (target.ToSome().Value) actual
+        }
+
+        let ``Matcher should perform the from pattern matching when SomeTC<T> isn't matched`` = test {
+            let target = MaybeTC.None<string>()
+            let actual = Matcher.ReturnMatch(target).With(
+                                    Case.From<SomeTC<string>>().Then<string>(id),
+                                    Case.Else().Then(fun () -> ""))
+            do! assertEquals "" actual
+        }
+
         let ``Matcher should perform the from pattern matching when Right<TLeft, TRight> is matched`` = test {
             let target = Either<exn, int>.Right(3)
             let actual = Matcher.ReturnMatch(target).With(
@@ -246,6 +317,23 @@ module MatcherTest =
             let actual = Matcher.ReturnMatch(target).With(
                                     Case.From<Right<exn, int>>().Then(fun () -> null),
                                     Case.From<Left<exn, int>>().Then<exn>(id))
+            do! assertEquals err actual
+        }
+
+        let ``Matcher should perform the from pattern matching when RightTC<TLeft, TRight> is matched`` = test {
+            let target = EitherTC<exn>.Right(3)
+            let actual = Matcher.ReturnMatch(target).With(
+                                    Case.From<RightTC<exn, int>>().Then<int>(id),
+                                    Case.From<LeftTC<exn, int>>().Then(fun () -> 0))
+            do! assertEquals 3 actual
+        }
+
+        let ``Matcher should perform the from pattern matching when LeftTC<TLeft, TRight> is matched`` = test {
+            let err = Exception("hoge")
+            let target = EitherTC<exn>.Left<int>(err)
+            let actual = Matcher.ReturnMatch(target).With(
+                                    Case.From<RightTC<exn, int>>().Then(fun () -> null),
+                                    Case.From<LeftTC<exn, int>>().Then<exn>(id))
             do! assertEquals err actual
         }
 
