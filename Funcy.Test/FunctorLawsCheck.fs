@@ -40,6 +40,38 @@ module FunctorLawsCheck =
             apply ``Composition in Some<T>``
             apply ``Composition in None<T>``
         }
+
+    module FunctorLawsInMaybeTC =
+        let ``Identity in SomeTC<T>`` = Prop.forAll(Arb.int)(fun i ->
+            let maybe = MaybeTC.Some(i)
+            // fmap id == id
+            maybe.FMap(funcId) = maybe
+        )
+
+        let ``Identity in NoneTC<T>`` = Prop.forAll(Arb.int)(fun i ->
+            let maybe = MaybeTC.None<int>()
+            // fmap id == id
+            maybe.FMap(funcId) = maybe
+        )
+
+        let ``Composition in SomeTC<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g i ->
+            let maybe = MaybeTC.Some(i)
+            // fmap (f . g) == fmap f . fmap g
+            maybe.FMap(Composition.Compose(g, f)) = maybe.FMap(f).FMap(g)
+        )
+
+        let ``Composition in NoneTC<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int))(fun f g ->
+            let maybe = MaybeTC.None<int>()
+            // fmap (f . g) == fmap f . fmap g
+            maybe.FMap(Composition.Compose(g, f)) = maybe.FMap(f).FMap(g)
+        )
+
+        let ``Functor laws`` = property {
+            apply ``Identity in SomeTC<T>``
+            apply ``Identity in NoneTC<T>``
+            apply ``Composition in SomeTC<T>``
+            apply ``Composition in NoneTC<T>``
+        }
         
     module FunctorLawsInEither =
         let ``Identity in Right<TLeft, TRight>`` = Prop.forAll(Arb.int)(fun i ->
@@ -71,6 +103,38 @@ module FunctorLawsCheck =
             apply ``Identity in Left<TLeft, TRight>``
             apply ``Composition in Right<TLeft, TRight>``
             apply ``Composition in Left<TLeft, TRight>``
+        }
+
+    module FunctorLawsInEitherTC =
+        let ``Identity in RightTC<TLeft, TRight>`` = Prop.forAll(Arb.int)(fun i ->
+            let either = EitherTC<exn>.Right(i)
+            // fmap id == id
+            either.FMap(funcId) = either
+        )
+
+        let ``Identity in LeftTC<TLeft, TRight>`` = Prop.forAll(Arb.string.NonNull)(fun s ->
+            let either = EitherTC<exn>.Left<int>(exn(s))
+            // fmap id == id
+            either.FMap(funcId) = either
+        )
+
+        let ``Composition in RightTC<TLeft, TRight>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g i ->
+            let either = EitherTC<exn>.Right(i)
+            // fmap (f . g) == fmap f . fmap g
+            either.FMap(Composition.Compose(g, f)) = either.FMap(f).FMap(g)
+        )
+
+        let ``Composition in LeftTC<TLeft, TRight>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.string.NonNull)(fun f g s ->
+            let either = EitherTC<exn>.Left<int>(exn(s))
+            // fmap (f . g) == fmap f . fmap g
+            either.FMap(Composition.Compose(g, f)) = either.FMap(f).FMap(g)
+        )
+
+        let ``Functor laws`` = property {
+            apply ``Identity in RightTC<TLeft, TRight>``
+            apply ``Identity in LeftTC<TLeft, TRight>``
+            apply ``Composition in RightTC<TLeft, TRight>``
+            apply ``Composition in LeftTC<TLeft, TRight>``
         }
 
     module FunctorLawsInFuncyList =

@@ -88,6 +88,83 @@ module ApplicativeLawsCheck =
             apply ``Interchange in Maybe<T>``
         }
 
+    module ApplicativeLawsInMaybeTC =
+        let pureMaybe = MaybeTC.Some
+        
+        let ``Identity in SomeTC<T>`` = Prop.forAll(Arb.int)(fun i ->
+            let v = MaybeTC.Some(i)
+            // pure id <*> v = v
+            v.Apply(pureMaybe funcId) = v
+        )
+
+        let ``Identity in NoneTC<T>`` = Prop.forAll(Arb.int)(fun i ->
+            let v = MaybeTC.None<int>()
+            // pure id <*> v = v
+            v.Apply(pureMaybe funcId) = v
+        )
+
+        let ``Composition in MaybeTC<T> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g i ->
+            let u = MaybeTC.Some(f)
+            let v = MaybeTC.Some(g)
+            let w = MaybeTC.Some(i)
+            let pointed = pureMaybe <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Composition in MaybeTC<T> 2`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun g i ->
+            let u = MaybeTC.None()
+            let v = MaybeTC.Some(g)
+            let w = MaybeTC.Some(i)
+            let pointed = pureMaybe <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Composition in MaybeTC<T> 3`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f i ->
+            let u = MaybeTC.Some(f)
+            let v = MaybeTC.None()
+            let w = MaybeTC.Some(i)
+            let pointed = pureMaybe <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Composition in MaybeTC<T> 4`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int))(fun f g ->
+            let u = MaybeTC.Some(f)
+            let v = MaybeTC.Some(g)
+            let w = MaybeTC.None()
+            let pointed = pureMaybe <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Homomorphism in MaybeTC<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f x ->
+            // pure f <*> pure x = pure (f x)
+            (pureMaybe x).Apply(pureMaybe f) = pureMaybe(f.Invoke(x))
+        )
+
+        let ``Interchange in MaybeTC<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f y ->
+            // u <*> pure y = pure ($ y) <*> u
+            let u = MaybeTC.Some(f)
+            (pureMaybe y).Apply(u) = u.Apply(pureMaybe <| Func<Func<int, int>, int>(fun f_ -> f_.Invoke(y)))
+        )
+
+        let ``Applicative laws`` = property {
+            apply ``Identity in SomeTC<T>``
+            apply ``Identity in NoneTC<T>``
+            apply ``Composition in MaybeTC<T> 1``
+            apply ``Composition in MaybeTC<T> 2``
+            apply ``Composition in MaybeTC<T> 3``
+            apply ``Composition in MaybeTC<T> 4``
+            apply ``Homomorphism in MaybeTC<T>``
+            apply ``Interchange in MaybeTC<T>``
+        }
+
     module ApplicativeLawsInEither =
         let pureEither<'TLeft, 'TRight> = Either<'TLeft, 'TRight>.Right
         
@@ -163,6 +240,83 @@ module ApplicativeLawsCheck =
             apply ``Composition in Either<TLeft, TRight> 4``
             apply ``Homomorphism in Either<TLeft, TRight>``
             apply ``Interchange in Either<TLeft, TRight>``
+        }
+
+    module ApplicativeLawsInEitherTC =
+        let pureEitherTC<'TLeft, 'TRight> x = EitherTC<'TLeft>.Right<'TRight>(x)
+        
+        let ``Identity in RightTC<TLeft, TRight>`` = Prop.forAll(Arb.int)(fun i ->
+            let v = EitherTC<string>.Right(i)
+            // pure id <*> v = v
+            v.Apply(pureEitherTC funcId) = v
+        )
+        
+        let ``Identity in LeftTC<TLeft, TRight>`` = Prop.forAll(Arb.string.NonNull)(fun s ->
+            let v = EitherTC<exn>.Left<int>(exn(s))
+            // pure id <*> v = v
+            v.Apply(pureEitherTC funcId) = v
+        )
+
+        let ``Composition in EitherTC<TLeft, TRight> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g i ->
+            let u = EitherTC<string>.Right(f)
+            let v = EitherTC<string>.Right(g)
+            let w = EitherTC<string>.Right(i)
+            let pointed = pureEitherTC <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Composition in EitherTC<TLeft, TRight> 2`` = Prop.forAll(Arb.string.NonNull, Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun s g i ->
+            let u = EitherTC<exn>.Left(exn(s))
+            let v = EitherTC<exn>.Right(g)
+            let w = EitherTC<exn>.Right(i)
+            let pointed = pureEitherTC <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Composition in EitherTC<TLeft, TRight> 3`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.string.NonNull, Arb.int)(fun f s i ->
+            let u = EitherTC<exn>.Right(f)
+            let v = EitherTC<exn>.Left(exn(s))
+            let w = EitherTC<exn>.Right(i)
+            let pointed = pureEitherTC <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Composition in EitherTC<TLeft, TRight> 4`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.string)(fun f g s ->
+            let u = EitherTC<exn>.Right(f)
+            let v = EitherTC<exn>.Right(g)
+            let w = EitherTC<exn>.Left(exn(s))
+            let pointed = pureEitherTC <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Homomorphism in EitherTC<TLeft, TRight>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f x ->
+            // pure f <*> pure x = pure (f x)
+            (pureEitherTC x).Apply(pureEitherTC f) = pureEitherTC(f.Invoke(x))
+        )
+
+        let ``Interchange in EitherTC<TLeft, TRight>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f y ->
+            // u <*> pure y = pure ($ y) <*> u
+            let u = EitherTC<string>.Right(f)
+            (pureEitherTC y).Apply(u) = u.Apply(pureEitherTC <| Func<Func<int, int>, int>(fun f_ -> f_.Invoke(y)))
+        )
+
+        let ``Applicative laws`` = property {
+            apply ``Identity in RightTC<TLeft, TRight>``
+            apply ``Identity in LeftTC<TLeft, TRight>``
+            apply ``Composition in EitherTC<TLeft, TRight> 1``
+            apply ``Composition in EitherTC<TLeft, TRight> 2``
+            apply ``Composition in EitherTC<TLeft, TRight> 3``
+            apply ``Composition in EitherTC<TLeft, TRight> 4``
+            apply ``Homomorphism in EitherTC<TLeft, TRight>``
+            apply ``Interchange in EitherTC<TLeft, TRight>``
         }
 
     module ApplicativeLawsInFuncyList =
