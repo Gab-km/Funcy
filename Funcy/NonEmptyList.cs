@@ -315,7 +315,7 @@ namespace Funcy
         }
     }
 
-    public static class NonEmptyListNT
+    public static class NonEmptyListTCNT
     {
         public static FuncyList<T> ToFuncyList<T>(this NonEmptyList<T> self)
         {
@@ -324,7 +324,7 @@ namespace Funcy
 
         public static FuncyList<T> Take<T>(this NonEmptyList<T> self, int length)
         {
-            return NonEmptyListNT.ToFuncyList(self).Take(length);
+            return NonEmptyListTCNT.ToFuncyList(self).Take(length);
         }
 
         public static T TakeFirst<T>(this NonEmptyList<T> self)

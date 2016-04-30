@@ -89,6 +89,7 @@ module ApplicativeLawsCheck =
         }
 
     module ApplicativeLawsInMaybeTC =
+        open Funcy.Future
         let pureMaybe = MaybeTC.Some
         
         let ``Identity in SomeTC<T>`` = Prop.forAll(Arb.int)(fun i ->
@@ -243,6 +244,7 @@ module ApplicativeLawsCheck =
         }
 
     module ApplicativeLawsInEitherTC =
+        open Funcy.Future
         let pureEitherTC<'TLeft, 'TRight> x = EitherTC<'TLeft>.Right<'TRight>(x)
         
         let ``Identity in RightTC<TLeft, TRight>`` = Prop.forAll(Arb.int)(fun i ->
@@ -396,6 +398,85 @@ module ApplicativeLawsCheck =
             apply ``Interchange in FuncyList<T>``
         }
 
+    module ApplicativeLawsInFuncyListTC =
+        open Funcy.Future
+
+        let pureFListTC x = FuncyListTC.Construct([|x|])
+        
+        let ``Identity in ConsTC<T>`` = Prop.forAll(Arb.int)(fun i ->
+            let v = FuncyListTC.Cons(i, FuncyListTC.Nil())
+            // pure id <*> v = v
+            v.Apply(pureFListTC funcId) = v
+        )
+
+        let ``Identity in NilTC<T>`` = Prop.forAll(Arb.int)(fun i ->
+            let v = FuncyListTC.Nil<int>()
+            // pure id <*> v = v
+            v.Apply(pureFListTC funcId) = v
+        )
+
+        let ``Composition in FuncyListTC<T> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g i ->
+            let u = FuncyListTC.Cons(f, FuncyListTC.Nil())
+            let v = FuncyListTC.Construct([|g|])
+            let w = FuncyListTC.Cons(i, FuncyListTC.Nil())
+            let pointed = pureFListTC <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Composition in FuncyListTC<T> 2`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.array(Arb.int).NonNull)(fun g a ->
+            let u = FuncyListTC.Nil()
+            let v = FuncyListTC.Cons(g, FuncyListTC.Nil())
+            let w = FuncyListTC.Construct(a)
+            let pointed = pureFListTC <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Composition in FuncyListTC<T> 3`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f i ->
+            let u = FuncyListTC.Cons(f, FuncyListTC.Nil())
+            let v = FuncyListTC.Nil()
+            let w = FuncyListTC.Cons(i, FuncyListTC.Nil())
+            let pointed = pureFListTC <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Composition in FuncyListTC<T> 4`` = Prop.forAll(Arb.array(Arb.systemFunc(CoArb.int, Arb.int)).NonNull, Arb.systemFunc(CoArb.int, Arb.int))(fun fs g ->
+            let u = FuncyListTC.Construct(fs)
+            let v = FuncyListTC.Construct([|g|])
+            let w = FuncyListTC.Nil()
+            let pointed = pureFListTC <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Homomorphism in FuncyListTC<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f x ->
+            // pure f <*> pure x = pure (f x)
+            (pureFListTC x).Apply(pureFListTC f) = pureFListTC(f.Invoke(x))
+        )
+
+        let ``Interchange in FuncyListTC<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f y ->
+            // u <*> pure y = pure ($ y) <*> u
+            let u = FuncyListTC.Cons(f, FuncyListTC.Nil())
+            (pureFListTC y).Apply(u) = u.Apply(pureFListTC <| Func<Func<int, int>, int>(fun f_ -> f_.Invoke(y)))
+        )
+
+        let ``Applicative laws`` = property {
+            apply ``Identity in ConsTC<T>``
+            apply ``Identity in NilTC<T>``
+            apply ``Composition in FuncyListTC<T> 1``
+            apply ``Composition in FuncyListTC<T> 2``
+            apply ``Composition in FuncyListTC<T> 3``
+            apply ``Composition in FuncyListTC<T> 4``
+            apply ``Homomorphism in FuncyListTC<T>``
+            apply ``Interchange in FuncyListTC<T>``
+        }
+
     module ApplicativeLawsInNonEmptyList =
         let pureNEL x = NonEmptyList.Construct([x])
         
@@ -492,3 +573,100 @@ module ApplicativeLawsCheck =
             apply ``Interchange in NonEmptyList<T>``
         }
 
+    module ApplicativeLawsInNonEmptyListTC =
+        open Funcy.Future
+
+        let pureNELTC x = NonEmptyListTC.Construct([x])
+        
+        let ``Identity in NonEmptyListTC<T>`` = Prop.forAll(Arb.nonEmpty(Arb.list Arb.int))(fun ls ->
+            let v = NonEmptyListTC.Construct(ls)
+            // pure id <*> v = v
+            v.Apply(pureNELTC funcId) = v
+        )
+        
+        let ``Identity in ConsNELTC<T>`` = Prop.forAll(Arb.int, Arb.int)(fun i j ->
+            let v = NonEmptyListTC.ConsNEL(i, NonEmptyListTC.Singleton(j))
+            // pure id <*> v = v
+            v.Apply(pureNELTC funcId) = v
+        )
+
+        let ``Identity in SingletonTC<T>`` = Prop.forAll(Arb.int)(fun i ->
+            let v = NonEmptyListTC.Singleton(i)
+            // pure id <*> v = v
+            v.Apply(pureNELTC funcId) = v
+        )
+
+        let ``Composition in NonEmptyListTC<T> 1`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmpty(Arb.list <| Arb.systemFunc(CoArb.int, Arb.int)), Arb.int, Arb.int)(fun f gs i j ->
+            let u = NonEmptyListTC.Singleton(f)
+            let v = NonEmptyListTC.Construct(gs)
+            let w = NonEmptyListTC.ConsNEL(i, NonEmptyListTC.Singleton(j))
+            let pointed = pureNELTC <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+        
+        let ``Composition in NonEmptyListTC<T> 2`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.nonEmpty(Arb.list Arb.int))(fun f g h ls ->
+            let u = NonEmptyListTC.ConsNEL(f, NonEmptyListTC.Singleton(g))
+            let v = NonEmptyListTC.Singleton(h)
+            let w = NonEmptyListTC.Construct(ls)
+            let pointed = pureNELTC <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Composition in NonEmptyListTC<T> 3`` = Prop.forAll(Arb.nonEmpty(Arb.list <| Arb.systemFunc(CoArb.int, Arb.int)), Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun fs g h i ->
+            let u = NonEmptyListTC.Construct(fs)
+            let v = NonEmptyListTC.ConsNEL(g, NonEmptyListTC.Singleton(h))
+            let w = NonEmptyListTC.Singleton(i)
+            let pointed = pureNELTC <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let arbFs = {
+          Gen = Gen.listOfLength 3 <| Arb.systemFunc(CoArb.int, Arb.int).Gen
+          Shrinker = Shrink.shrinkList <| Arb.systemFunc(CoArb.int, Arb.int).Shrinker
+          PrettyPrinter = Pretty.prettyList
+        }
+
+        let arbLs = {
+          Gen = Gen.listOfLength 3 <| Arb.int.Gen
+          Shrinker = Shrink.shrinkList <| Arb.int.Shrinker
+          PrettyPrinter = Pretty.prettyList
+        }
+
+        let ``Composition in NonEmptyListTC<T> 4`` = Prop.forAll(arbFs, arbFs, arbLs)(fun fs gs ls ->
+            let u = NonEmptyListTC.Construct(fs)
+            let v = NonEmptyListTC.Construct(gs)
+            let w = NonEmptyListTC.Construct(ls)
+            let pointed = pureNELTC <|
+                            (!> Currying.Curry(Func<Func<int, int>, Func<int, int>, Func<int, int>>(fun f_ g_ -> Composition.Compose(f_, g_))))
+            // pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+            w.Apply(v.Apply(u.Apply(pointed))) = w.Apply(v).Apply(u)
+        )
+
+        let ``Homomorphism in NonEmptyListTC<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f x ->
+            // pure f <*> pure x = pure (f x)
+            (pureNELTC x).Apply(pureNELTC f) = pureNELTC(f.Invoke(x))
+        )
+
+        let ``Interchange in NonEmptyListTC<T>`` = Prop.forAll(Arb.systemFunc(CoArb.int, Arb.int), Arb.systemFunc(CoArb.int, Arb.int), Arb.int)(fun f g y ->
+            // u <*> pure y = pure ($ y) <*> u
+            let u = NonEmptyListTC.ConsNEL(f, NonEmptyListTC.Singleton(g))
+            (pureNELTC y).Apply(u) = u.Apply(pureNELTC <| Func<Func<int, int>, int>(fun f_ -> f_.Invoke(y)))
+        )
+
+        let ``Applicative laws`` = property {
+            apply ``Identity in NonEmptyListTC<T>``
+            apply ``Identity in ConsNELTC<T>``
+            apply ``Identity in SingletonTC<T>``
+            apply ``Composition in NonEmptyListTC<T> 1``
+            apply ``Composition in NonEmptyListTC<T> 2``
+            apply ``Composition in NonEmptyListTC<T> 3``
+            apply ``Composition in NonEmptyListTC<T> 4``
+            apply ``Homomorphism in NonEmptyListTC<T>``
+            apply ``Interchange in NonEmptyListTC<T>``
+        }

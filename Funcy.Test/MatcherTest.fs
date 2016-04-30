@@ -2,9 +2,10 @@
 
 open System
 open Funcy
+open Funcy.Future
+open Funcy.Patterns
 open Persimmon
 open UseTestNameByReflection
-open Funcy.Patterns
 
 module MatcherTest =
     module SimpleMatcherTest =
@@ -193,6 +194,21 @@ module MatcherTest =
             do! assertPred <| not !isNil
         }
 
+        let ``Matcher should perform the from pattern matching when ConsTC<T> is matched`` = test {
+            let target = ConsTC(1, ConsTC(2, NilTC()))
+            let valueHead = ref 0
+            let isCons = ref false
+            let isNil = ref false
+            let action = Action<int * FuncyListTC<int>>(fun (head, tail) -> valueHead := head; isCons := true)
+            Matcher.Match(target).With(
+                Case.From<ConsTC<int>>().Then(action),
+                Case.Else().Then(fun _ -> isNil := true)
+            ) |> ignore
+            do! assertEquals 1 !valueHead
+            do! assertPred !isCons
+            do! assertPred <| not !isNil
+        }
+
         let ``Matcher should perform the from pattern matching when ConsNEL<T> is matched`` = test {
             let target = ConsNEL(1, ConsNEL(2, Singleton(3)))
             let valueHead = ref 0
@@ -221,6 +237,40 @@ module MatcherTest =
             Matcher.Match(target).With(
                 Case.From<ConsNEL<int>>().Then(action1),
                 Case.From<Singleton<int>>().Then(action2)
+            ) |> ignore
+            do! assertEquals 4 !valueHead
+            do! assertPred <| not !isConsNEL
+            do! assertPred !isSingleton
+        }
+
+        let ``Matcher should perform the from pattern matching when ConsNELTC<T> is matched`` = test {
+            let target = ConsNELTC(1, ConsNELTC(2, SingletonTC(3)))
+            let valueHead = ref 0
+            let isConsNEL = ref false
+            let isSingleton = ref false
+            let action1 = Action<int * NonEmptyListTC<int>>(fun (head, _) ->
+                valueHead := head; isConsNEL := true)
+            let action2 = Action<int>(fun value -> valueHead := value; isSingleton := true)
+            Matcher.Match(target).With(
+                Case.From<ConsNELTC<int>>().Then(action1),
+                Case.From<SingletonTC<int>>().Then(action2)
+            ) |> ignore
+            do! assertEquals 1 !valueHead
+            do! assertPred !isConsNEL
+            do! assertPred <| not !isSingleton
+        }
+
+        let ``Matcher should perform the from pattern matching when SingletonTC<T> is matched`` = test {
+            let target = SingletonTC(4)
+            let valueHead = ref 0
+            let isConsNEL = ref false
+            let isSingleton = ref false
+            let action1 = Action<int * NonEmptyListTC<int>>(fun (head, _) ->
+                valueHead := head; isConsNEL := true)
+            let action2 = Action<int>(fun value -> valueHead := value; isSingleton := true)
+            Matcher.Match(target).With(
+                Case.From<ConsNELTC<int>>().Then(action1),
+                Case.From<SingletonTC<int>>().Then(action2)
             ) |> ignore
             do! assertEquals 4 !valueHead
             do! assertPred <| not !isConsNEL
@@ -347,6 +397,16 @@ module MatcherTest =
             do! assertEquals expected actual
         }
 
+        let ``Matcher should perform the from pattern matching when ConsTC<T> is matched`` = test {
+            let target = ConsTC(1, ConsTC(2, NilTC()))
+            let func = Func<int * FuncyListTC<int>, FuncyListTC<int>>(snd)
+            let actual = Matcher.ReturnMatch(target).With(
+                            Case.From<ConsTC<int>>().Then(func),
+                            Case.Else().Then(fun _ -> null))
+            let expected = FuncyListTC.Construct([| 2 |])
+            do! assertEquals expected actual
+        }
+
         let ``Matcher should perform the from pattern matching when ConsNEL<T> is matched`` = test {
             let target = ConsNEL(1, ConsNEL(2, Singleton(3)))
             let func = Func<int * NonEmptyList<int>, NonEmptyList<int>>(snd)
@@ -364,5 +424,25 @@ module MatcherTest =
             let actual = Matcher.ReturnMatch(target).With(
                             Case.From<ConsNEL<int>>().Then(func1),
                             Case.From<Singleton<int>>().Then(func2))
+            do! assertEquals 4 actual
+        }
+
+        let ``Matcher should perform the from pattern matching when ConsNELTC<T> is matched`` = test {
+            let target = ConsNELTC(1, ConsNELTC(2, SingletonTC(3)))
+            let func = Func<int * NonEmptyListTC<int>, NonEmptyListTC<int>>(snd)
+            let actual = Matcher.ReturnMatch(target).With(
+                            Case.From<ConsNELTC<int>>().Then(func),
+                            Case.From<SingletonTC<int>>().Then(fun () -> null))
+            let expected = NonEmptyListTC.Construct([2; 3])
+            do! assertEquals expected actual
+        }
+
+        let ``Matcher should perform the from pattern matching when SingletonTC<T> is matched`` = test {
+            let target = SingletonTC(4)
+            let func1 = Func<int * NonEmptyListTC<int>, int>(fun _ -> Int32.MinValue)
+            let func2 = Func<int, int>(id)
+            let actual = Matcher.ReturnMatch(target).With(
+                            Case.From<ConsNELTC<int>>().Then(func1),
+                            Case.From<SingletonTC<int>>().Then(func2))
             do! assertEquals 4 actual
         }
