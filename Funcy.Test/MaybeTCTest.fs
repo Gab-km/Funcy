@@ -1,6 +1,6 @@
 ﻿namespace Funcy.Test
 
-open Funcy
+open Funcy.Future
 open Persimmon
 open UseTestNameByReflection
 

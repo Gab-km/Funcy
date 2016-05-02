@@ -1,15 +1,20 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Funcy.Computations;
+using Funcy.Future.Computations;
 using Funcy.Patterns;
 
-namespace Funcy
+namespace Funcy.Future
 {
     public abstract class EitherTC<TLeft, TRight> : IStructuralEquatable, IStructuralComparable, IComputableTC<EitherTC<TLeft>, TRight>
     {
         public abstract bool IsRight { get; }
         public abstract bool IsLeft { get; }
+
+        public EitherTC()
+        {
+            this.Pointed = new EitherTC<TLeft>();
+        }
 
         public RightTC<TLeft, TRight> ToRight()
         {
@@ -21,7 +26,8 @@ namespace Funcy
             return (LeftTC<TLeft, TRight>)this;
         }
 
-        public IPointed<EitherTC<TLeft>> Pointed { get { return new EitherTC<TLeft>(); } }
+        IPointed<EitherTC<TLeft>> IFunctorTC<EitherTC<TLeft>, TRight>.Pointed { get { return this.Pointed; } }
+        public EitherTC<TLeft> Pointed { get; private set; }
 
         IFunctorTC<EitherTC<TLeft>, TReturn> IFunctorTC<EitherTC<TLeft>, TRight>.FMap<TReturn>(Func<TRight, TReturn> f)
         {

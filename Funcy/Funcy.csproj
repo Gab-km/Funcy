@@ -44,17 +44,21 @@
   <ItemGroup>
     <Compile Include="Composition.cs" />
     <Compile Include="Computations\IApplicative.cs" />
-    <Compile Include="Computations\IApplicativeTC.cs" />
-    <Compile Include="Computations\IComputableTC.cs" />
+    <Compile Include="Future\Computations\IApplicativeTC.cs" />
+    <Compile Include="Future\Computations\IComputableTC.cs" />
     <Compile Include="Computations\IFunctor.cs" />
-    <Compile Include="Computations\IFunctorTC.cs" />
+    <Compile Include="Future\Computations\IFunctorTC.cs" />
     <Compile Include="CurriedAction.cs" />
     <Compile Include="CurriedFunction.cs" />
     <Compile Include="Currying.cs" />
-    <Compile Include="EitherTC.cs" />
+    <Compile Include="Future\EitherTC.cs" />
     <Compile Include="Extensions\CurryingExtension.cs" />
     <Compile Include="FuncyList.cs" />
-    <Compile Include="MaybeTC.cs" />
+    <Compile Include="Future\FuncyListTC.cs" />
+    <Compile Include="Future\MaybeTC.cs" />
+    <Compile Include="Future\NaturalTransformations\FuncyListTCNT.cs" />
+    <Compile Include="Future\NaturalTransformations\NonEmptyListTCNT.cs" />
+    <Compile Include="Future\NonEmptyListTC.cs" />
     <Compile Include="NonEmptyList.cs" />
     <Compile Include="Patterns\Case.cs" />
     <Compile Include="Either.cs" />

@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace Funcy.Computations
+namespace Funcy.Future.Computations
 {
     public interface IApplicativeTC<TApplicative, TSource> : IFunctorTC<TApplicative, TSource> where TApplicative : IPointed<TApplicative>
     {

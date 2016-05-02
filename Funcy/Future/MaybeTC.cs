@@ -1,15 +1,20 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Funcy.Computations;
+using Funcy.Future.Computations;
 using Funcy.Patterns;
 
-namespace Funcy
+namespace Funcy.Future
 {
     public abstract class MaybeTC<T> : IStructuralEquatable, IStructuralComparable, IComputableTC<MaybeTC, T>
     {
         public abstract bool IsSome { get; }
         public abstract bool IsNone { get; }
+
+        public MaybeTC()
+        {
+            this.Pointed = new MaybeTC();
+        }
 
         public SomeTC<T> ToSome()
         {
@@ -22,7 +27,7 @@ namespace Funcy
         }
 
         IPointed<MaybeTC> IFunctorTC<MaybeTC, T>.Pointed { get { return this.Pointed; } }
-        public MaybeTC Pointed { get { return new MaybeTC(); } }
+        public MaybeTC Pointed { get; private set; }
 
         IFunctorTC<MaybeTC, TReturn> IFunctorTC<MaybeTC, T>.FMap<TReturn>(Func<T, TReturn> f)
         {
