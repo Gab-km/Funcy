@@ -77,6 +77,7 @@
     <Compile Include="NonEmptyListTCTest.fs" />
     <Compile Include="NonEmptyListTest.fs" />
     <Compile Include="NonEmptyListNTTest.fs" />
+    <Compile Include="MonoidExtensionTest.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

@@ -51,6 +51,7 @@
     <Compile Include="CurriedAction.cs" />
     <Compile Include="CurriedFunction.cs" />
     <Compile Include="Currying.cs" />
+    <Compile Include="Future\Computations\IMonoid.cs" />
     <Compile Include="Future\EitherTC.cs" />
     <Compile Include="Extensions\CurryingExtension.cs" />
     <Compile Include="FuncyList.cs" />
